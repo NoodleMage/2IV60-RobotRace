@@ -189,8 +189,6 @@ public class RobotRace extends Base {
         // Draw the axis frame.
         if (gs.showAxes) {
             drawAxisFrame();
-            // Set color back to black.
-            gl.glColor3f(0f, 0f, 0f);
         }
 
         // Get the position and direction of the first robot.
@@ -236,81 +234,70 @@ public class RobotRace extends Base {
         //functions to position and scale them. Call RobotRace.drawAxisFrame
         //from RobotRace.drawScene.
         
-        //Push new matrix to stack
+        // Translate the matrix to move the origin point
         gl.glPushMatrix();
-
-        //Draw color red
-        gl.glColor3f(1f, 0f, 0f);
-        //Draw the x axis
-        drawAxis();
-
-        //Clone matrix and push to stack
-        gl.glPushMatrix();
-
-        //Rotate to y-axis
-        gl.glRotatef(90, 0f, 0f, 1f);
-        //Set color green
-        gl.glColor3f(0f, 1f, 0f);
-        //Draw Axis
-        drawAxis();
-
-        //Remove matrix from stack
-        gl.glPopMatrix();
-
-        //Clone matrix and push to stack
-        gl.glPushMatrix();
-        //Rotate to z-axis
-        gl.glRotatef(-270, 0f, -1f, 0f);
-
-        //Set color blue
-        gl.glColor3f(0f, 0f, 1f);
-        //Draw Axis
-        drawAxis();
-
-        //Remove matrix from stack   
-        gl.glPopMatrix();
-        //Remove matrix from stack
-        gl.glPopMatrix();
-
-        //Add Matrix to stack
-        gl.glPushMatrix();
-        //Set color to yellow
-        gl.glColor3f(1f, 1f, 0f);
-        //Draw sphere
-        glut.glutSolidSphere(0.12f, 10, 10);
-        //Remove Matrix from stack
-        gl.glPopMatrix();
-
-    }
-
-    private void drawAxis() {
-
-        //Push matrix to stack
-        gl.glPushMatrix();
-
-        //Translate brick for correct outline with Sphere
-        gl.glTranslatef(0.45f, 0f, 0f);
-
-        //Clone matrix for modification
-        gl.glPushMatrix(); 
+        //gl.glTranslatef(-2.5f, 0f, 0f);
         
-        //Scale for smaller cubes
-        gl.glScalef(1f, 0.035f, 0.035f);
-        //Draw cube
+        // Draw the Blue Z-axis
+        gl.glPushMatrix();
+        // Draw the Blue Line
+        gl.glColor3f(0f, 0f, 255f);
+        gl.glTranslatef(0f, 0f, 0.5f);
+        
+        // Draw the Blue cone
+        gl.glPushMatrix();
+        gl.glTranslatef(0f, 0f, 0.5f);
+        glut.glutSolidCone(0.1f, 0.25f, 20, 20);
+        gl.glPopMatrix();
+        
+        gl.glScalef(0.035f, 0.035f, 1f);
         glut.glutSolidCube(1f);
-        //Remove matrix from stack
         gl.glPopMatrix();
-
-        //Rotate matrix for fitting spheres
+        
+        // Draw the Red X-axis
+        gl.glPushMatrix();
+        gl.glColor3f(255f, 0f, 0f);
+        gl.glTranslatef(0.5f, 0f, 0f);
         gl.glRotatef(90f, 0f, 1f, 0f);
-        //Correctly align cones
-        gl.glTranslatef(0f, 0.f, 0.35f);
-        //Draw cone
-        glut.glutSolidCone(0.07f, 0.2f, 50, 2);
-
-        //Remove matrix from stack
+        
+        // Draw the Red cone
+        gl.glPushMatrix();
+        gl.glTranslatef(0f, 0f, 0.5f);
+        glut.glutSolidCone(0.1f, 0.25f, 20, 20);
         gl.glPopMatrix();
+        
+        gl.glScalef(0.035f, 0.035f, 1f);
+        glut.glutSolidCube(1f);
+        gl.glPopMatrix();
+        
+        // Draw the Green Y-axis
+        gl.glPushMatrix();
+        gl.glColor3f(0f, 255f, 0f);
+        gl.glTranslatef(0f, 0.5f, 0f);
+        gl.glRotatef(90f, -1f, 0f, 0f);
+        
+        // Draw the Green cone
+        gl.glPushMatrix();
+        gl.glTranslatef(0f, 0f, 0.5f);
+        glut.glutSolidCone(0.1f, 0.25f, 20, 20);
+        gl.glPopMatrix();
+        
+        gl.glScalef(0.035f, 0.035f, 1f);
+        glut.glutSolidCube(1f);
+        gl.glPopMatrix();
+        
+        // Draw the yellow sphere
+        gl.glPushMatrix();
+        gl.glColor3f(255f, 255f, 0f);
+        glut.glutSolidSphere(0.15f, 20, 20);
+        gl.glPopMatrix();
+        
+        // Pop the matrix back to original state
+        gl.glPopMatrix();
+        // Set the draw color to black
+        gl.glColor3f(0f, 0f, 0f);
     }
+
 
     /**
      * Main program execution body, delegates to an instance of the RobotRace
