@@ -225,76 +225,68 @@ public class RobotRace extends Base {
      * (yellow).
      */
     public void drawAxisFrame() {
-        //Elaborate the method RobotRace.drawAxisFrame() to draw a standard axis
-        //frame. The axes have length 1 meter, are aligned with the X, Y , and Z axes, and consist
-        //of a block with a cone at the end to show the direction. Show the position of the origin
-        //with a yellow sphere. Use red, green, and blue as colors for the three axes. Draw the
-        //frame if gs.showAxes is true. Use glutSolidCube(), glutSolidCone(),
-        //and glutSolidSphere() for drawing the primitives, and standard OpenGL transformation
-        //functions to position and scale them. Call RobotRace.drawAxisFrame
-        //from RobotRace.drawScene.
-        
-        // Translate the matrix to move the origin point
+        // Push new matrix to stack to modify safely
         gl.glPushMatrix();
-        //gl.glTranslatef(-2.5f, 0f, 0f);
         
-        // Draw the Blue Z-axis
+        // 2D array to store the colors
+        float[][] colors = new float[][]{
+            {255,0,0},  // Red
+            {0,255,0},  // Green
+            {0,0,255}   // Blue
+        };
+        // 2D array to store the line translations
+        float[][] translation = new float[][]{
+            {0.5f, 0f, 0f},  // Red
+            {0f, 0.5f, 0f},  // Green
+            {0f, 0f, 0.5f}   // Blue
+        };
+        // 2D array to store the rotation coordinates
+        float[][] rotation = new float[][]{
+            {90f, 0f, 1f, 0f},   // Red
+            {90f, -1f, 0f, 0f},  // Green
+            {0,0,0,0}            // Blue
+        };
+
+        // Draw the three axis
+        for (int i = 0; i < 3; i++) {
+            // Push new matrix to stack to modify safely
+            gl.glPushMatrix();
+            // Set the color accordingly
+            gl.glColor3f(colors[i][0], colors[i][1], colors[i][2]);
+            // Translate the matrix accordingly
+            gl.glTranslatef(translation[i][0], translation[i][1], translation[i][2]);
+            // Rotate the matrix accordingly
+            gl.glRotatef(rotation[i][0],rotation[i][1],rotation[i][2],rotation[i][3]);
+
+            // Push new matrix to stack to edit safely
+            gl.glPushMatrix();
+            // Translate cone to end of line
+            gl.glTranslatef(0f, 0f, 0.5f);
+            // Draw the cone
+            glut.glutSolidCone(0.1f, 0.25f, 20, 20);
+            // Pop matrix of stack to return origin matrix
+            gl.glPopMatrix();
+            
+            // Scale the matrix to convert cubes into lines sortof
+            gl.glScalef(0.035f, 0.035f, 1f);
+            // Draw a cube with 1 meter lenght
+            glut.glutSolidCube(1f);
+            // Pop matrix of stack to return origin matrix
+            gl.glPopMatrix();
+        }
+        
+        // Push new matrix to stack to edit safely
         gl.glPushMatrix();
-        // Draw the Blue Line
-        gl.glColor3f(0f, 0f, 255f);
-        gl.glTranslatef(0f, 0f, 0.5f);
-        
-        // Draw the Blue cone
-        gl.glPushMatrix();
-        gl.glTranslatef(0f, 0f, 0.5f);
-        glut.glutSolidCone(0.1f, 0.25f, 20, 20);
-        gl.glPopMatrix();
-        
-        gl.glScalef(0.035f, 0.035f, 1f);
-        glut.glutSolidCube(1f);
-        gl.glPopMatrix();
-        
-        // Draw the Red X-axis
-        gl.glPushMatrix();
-        gl.glColor3f(255f, 0f, 0f);
-        gl.glTranslatef(0.5f, 0f, 0f);
-        gl.glRotatef(90f, 0f, 1f, 0f);
-        
-        // Draw the Red cone
-        gl.glPushMatrix();
-        gl.glTranslatef(0f, 0f, 0.5f);
-        glut.glutSolidCone(0.1f, 0.25f, 20, 20);
-        gl.glPopMatrix();
-        
-        gl.glScalef(0.035f, 0.035f, 1f);
-        glut.glutSolidCube(1f);
-        gl.glPopMatrix();
-        
-        // Draw the Green Y-axis
-        gl.glPushMatrix();
-        gl.glColor3f(0f, 255f, 0f);
-        gl.glTranslatef(0f, 0.5f, 0f);
-        gl.glRotatef(90f, -1f, 0f, 0f);
-        
-        // Draw the Green cone
-        gl.glPushMatrix();
-        gl.glTranslatef(0f, 0f, 0.5f);
-        glut.glutSolidCone(0.1f, 0.25f, 20, 20);
-        gl.glPopMatrix();
-        
-        gl.glScalef(0.035f, 0.035f, 1f);
-        glut.glutSolidCube(1f);
-        gl.glPopMatrix();
-        
-        // Draw the yellow sphere
-        gl.glPushMatrix();
+        // Set the Draw color to yellow
         gl.glColor3f(255f, 255f, 0f);
+        // Draw the sphere
         glut.glutSolidSphere(0.15f, 20, 20);
+        // Pop the matrix back to original state
         gl.glPopMatrix();
         
         // Pop the matrix back to original state
         gl.glPopMatrix();
-        // Set the draw color to black
+        // Reset the draw color to black
         gl.glColor3f(0f, 0f, 0f);
     }
 
