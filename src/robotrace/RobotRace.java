@@ -153,7 +153,8 @@ public class RobotRace extends Base {
 
         // Set the perspective.
         // Modify this to meet the requirements in the assignment.
-        glu.gluPerspective(40, (float) gs.w / (float) gs.h, 0.1, 100);
+        Double angle = Math.atan2(gs.vDist,(0.5*gs.vWidth));
+        glu.gluPerspective(Math.toDegrees(angle) * 2, (float) gs.w / (float) gs.h, 0.1*gs.vDist, 10 * gs.vDist);
 
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);
@@ -196,7 +197,8 @@ public class RobotRace extends Base {
         robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
 
         // Draw the first robot.
-        robots[0].draw(gl, glu, glut, false, gs.tAnim);
+        //robots[0].draw(gl, glu, glut, false, gs.tAnim);
+        robots[0].draw(gl, glu, glut, true, gs.tAnim);
 
         // Draw the race track.
         raceTracks[gs.trackNr].draw(gl, glu, glut);
@@ -205,7 +207,7 @@ public class RobotRace extends Base {
         terrain.draw(gl, glu, glut);
 
         // Unit box around origin.
-        glut.glutWireCube(1f);
+        //glut.glutWireCube(1f);
 
         // Move in x-direction.
         gl.glTranslatef(2f, 0f, 0f);
@@ -217,7 +219,7 @@ public class RobotRace extends Base {
         gl.glScalef(1f, 1f, 2f);
 
         // Translated, rotated, scaled box.
-        glut.glutWireCube(1f);
+        //glut.glutWireCube(1f);
     }
 
     /**
@@ -247,7 +249,10 @@ public class RobotRace extends Base {
             {0,0,0,0}            // Blue
         };
 
-        // Draw the three axis
+        // Iterate through i = 0; i < 3; in order to draw the three exis
+        // Multidimensional float arrays are used to iterate through the colors
+        // Multidimensional float arrays are used to iterate through the translations
+        // Multidimensional float arrays are used to iterate through the rotations
         for (int i = 0; i < 3; i++) {
             // Push new matrix to stack to modify safely
             gl.glPushMatrix();
