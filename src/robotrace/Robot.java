@@ -34,8 +34,8 @@ class Robot {
      */
     public void draw(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim) {
         //TODO: resize fix.
-        float bodyLength = 0.5f;
-        double bodyWidth = 0.25;
+        float bodyLength = 1;
+        double bodyWidth = 0.75;
         
         gl.glColor3f(0f,1f,0f); // Colour the thing green
         gl.glTranslatef(1f, 1f,1f); // Translate so it doesnt interfere with axis frame
