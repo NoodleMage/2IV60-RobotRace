@@ -18,6 +18,16 @@ class Robot {
 
     /** The material from which this robot is built. */
     private final Material material;
+    
+    // Make global variables to simplify the code
+    private GL2 gl;
+    private GLU glu;
+    private GLUT glut;
+    // Set the Robot stats
+    private boolean stick;
+    private final double scale = 0.5;
+    private final double bodyWidth  = scale * 0.75;
+    private final float bodyLength = (float) (scale * 1);
 
     /**
      * Constructs the robot with initial parameters.
@@ -25,33 +35,33 @@ class Robot {
     public Robot(Material material
         /* add other parameters that characterize this robot */) {
         this.material = material;
-
-        // code goes here ...
     }
 
     /**
      * Draws this robot (as a {@code stickfigure} if specified).
      */
-    public void draw(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim) {
-        //TODO: resize fix.
-        float bodyLength = 1;
-        double bodyWidth = 0.75;
+    public void draw(GL2 gl1, GLU glu1, GLUT glut1, boolean stickFigure, float tAnim) {
+        // Set the global variables
+        this.gl = gl1;
+        this.glu = glu1;
+        this.glut = glut1;
+        this.stick = stickFigure; 
         
         gl.glColor3f(0f,1f,0f); // Colour the thing green
         gl.glTranslatef(1f, 1f,1f); // Translate so it doesnt interfere with axis frame
         
-       drawHead(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth);
-       drawBody(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth);
-       drawLegs(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth);
-       drawArms(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth);
+       drawHead(tAnim);
+       drawBody(tAnim);
+       drawLegs(tAnim);
+       drawArms(tAnim);
     }
     
     /**
      * Draws the robot body
      */
-    public void drawBody(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth){
+    public void drawBody(float tAnim){
         gl.glPushMatrix();
-        if (stickFigure)
+        if (stick)
         {
             gl.glScalef(0.05f, 0.2f, 1f);
         }
@@ -62,19 +72,19 @@ class Robot {
     /**
      * Draws the robot Arm
      */
-    public void drawArms(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth){
+    public void drawArms(float tAnim){
         double translation = bodyWidth * 1.25;
         gl.glPushMatrix();
-        if (stickFigure)
+        if (stick)
         {
             gl.glScalef(0.2f, 0.2f, 1f);
         }
-        drawLimb(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth, (float) translation); // Left arm
-        drawLimb(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth, -(float) translation); // Right arm
+        drawLimb(tAnim, (float) translation); // Left arm
+        drawLimb(tAnim, -(float) translation); // Right arm
         gl.glPopMatrix();
     }
     
-    public void drawLimb(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth, float t){
+    public void drawLimb(float tAnim, float t){
         double limbLength = bodyLength*0.70;
         double limbWidth = bodyWidth*0.20; 
         
@@ -94,31 +104,34 @@ class Robot {
     /**
      * Draws the robot leg
      */
-    public void drawLegs(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth){
+    public void drawLegs(float tAnim){
         gl.glPushMatrix();
-        if (stickFigure)
+        float translation = bodyLength * 0.6f;
+        float distance = (float) (bodyWidth * 0.35f);
+        
+        if (stick)
         {
             gl.glScalef(0.2f, 0.2f, 1f);
         }
-        gl.glTranslatef(0f, 0f,-0.6f); // Translate to be below body
-        drawLimb(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth, 0.25f); // Left arm
-        drawLimb(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth, -0.25f); // Right arm
+        gl.glTranslatef(0f, 0f,-translation); // Translate to be below body
+        drawLimb(tAnim, distance);
+        drawLimb(tAnim, -distance);
         gl.glPopMatrix();
     }
     
     /**
      * Draws the robot head
      */
-    public void drawHead(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth){
+    public void drawHead(float tAnim){
         gl.glPushMatrix();
-        if (stickFigure)
+        if (stick)
         {
             gl.glScalef(0.2f, 0.2f, 1f);
         }
-        gl.glTranslatef(0f, 0f, 1.0f); // Translate to be above body
+        gl.glTranslatef(0f, 0f, bodyLength); // Translate to be above body
         
         gl.glPushMatrix();
-        gl.glTranslatef(0f, 0f, 0.1f); // Translate for gap between body.
+        gl.glTranslatef(0f, 0f, bodyLength * 0.1f); // Translate for gap between body.
         double[] eqn = {0.0, 0.0, 1.0, 0.0};
         gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
         gl.glEnable (gl.GL_CLIP_PLANE0);
@@ -130,14 +143,14 @@ class Robot {
         // draw eyes
         gl.glPushMatrix();
         gl.glColor3f(0f,0f,0f); // Colour black
-        gl.glTranslatef(-0.2f,0.65f,0.3f);
+        gl.glTranslatef((float) (-bodyWidth * 0.3f), (float) (bodyWidth* 0.9f),bodyLength * 0.3f);
         glut.glutSolidSphere(0.05, 30, 30);
         gl.glColor3f(0f,1f,0f);
         gl.glPopMatrix();
         
         gl.glPushMatrix();
         gl.glColor3f(0f,0f,0f); // Colour black
-        gl.glTranslatef(0.2f,0.65f,0.3f);
+        gl.glTranslatef((float) (bodyWidth * 0.3f), (float) (bodyWidth* 0.9f),bodyLength * 0.3f);
         glut.glutSolidSphere(0.05, 30, 30);
         gl.glColor3f(0f,1f,0f);
         gl.glPopMatrix();

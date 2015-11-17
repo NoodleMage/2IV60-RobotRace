@@ -198,7 +198,7 @@ public class RobotRace extends Base {
 
         // Draw the first robot.
         //robots[0].draw(gl, glu, glut, false, gs.tAnim);
-        robots[0].draw(gl, glu, glut, true, gs.tAnim);
+        robots[0].draw(gl, glu, glut, gs.showStick, gs.tAnim);
 
         // Draw the race track.
         raceTracks[gs.trackNr].draw(gl, glu, glut);
