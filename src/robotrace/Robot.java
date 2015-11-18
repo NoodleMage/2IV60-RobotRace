@@ -1,8 +1,11 @@
 package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
-import java.nio.DoubleBuffer;
+import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import javax.media.opengl.glu.GLU;
 
 /**
@@ -18,6 +21,16 @@ class Robot {
 
     /** The material from which this robot is built. */
     private final Material material;
+    
+    // Make global variables to simplify the code
+    private GL2 gl;
+    private GLU glu;
+    private GLUT glut;
+    // Set the Robot stats
+    private boolean stick;
+    private final double scale = 0.5;
+    private final double bodyWidth  = scale * 0.75;
+    private final float bodyLength = (float) (scale * 1);
 
     /**
      * Constructs the robot with initial parameters.
@@ -25,33 +38,36 @@ class Robot {
     public Robot(Material material
         /* add other parameters that characterize this robot */) {
         this.material = material;
-
-        // code goes here ...
     }
 
     /**
      * Draws this robot (as a {@code stickfigure} if specified).
      */
-    public void draw(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim) {
-        //TODO: resize fix.
-        float bodyLength = 1;
-        double bodyWidth = 0.75;
+    public void draw(GL2 gl1, GLU glu1, GLUT glut1, boolean stickFigure, float tAnim) {
+        // Set the global variables
+        this.gl = gl1;
+        this.glu = glu1;
+        this.glut = glut1;
+        this.stick = stickFigure; 
         
-        gl.glColor3f(0f,1f,0f); // Colour the thing green
-        gl.glTranslatef(1f, 1f,1f); // Translate so it doesnt interfere with axis frame
+        //Set material
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, material.diffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
         
-       drawHead(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth);
-       drawBody(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth);
-       drawLegs(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth);
-       drawArms(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth);
+       //Draw Robot
+       drawBody(tAnim);
+       drawLegs(tAnim);
+       drawArms(tAnim);
+       drawHead(tAnim);
     }
     
     /**
      * Draws the robot body
      */
-    public void drawBody(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth){
+    public void drawBody(float tAnim){
         gl.glPushMatrix();
-        if (stickFigure)
+        if (stick)
         {
             gl.glScalef(0.05f, 0.2f, 1f);
         }
@@ -62,19 +78,19 @@ class Robot {
     /**
      * Draws the robot Arm
      */
-    public void drawArms(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth){
+    public void drawArms(float tAnim){
         double translation = bodyWidth * 1.25;
         gl.glPushMatrix();
-        if (stickFigure)
+        if (stick)
         {
             gl.glScalef(0.2f, 0.2f, 1f);
         }
-        drawLimb(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth, (float) translation); // Left arm
-        drawLimb(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth, -(float) translation); // Right arm
+        drawLimb(tAnim, (float) translation); // Left arm
+        drawLimb(tAnim, -(float) translation); // Right arm
         gl.glPopMatrix();
     }
     
-    public void drawLimb(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth, float t){
+    public void drawLimb(float tAnim, float t){
         double limbLength = bodyLength*0.70;
         double limbWidth = bodyWidth*0.20; 
         
@@ -94,82 +110,80 @@ class Robot {
     /**
      * Draws the robot leg
      */
-    public void drawLegs(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth){
+    public void drawLegs(float tAnim){
         gl.glPushMatrix();
-        if (stickFigure)
+        float translation = bodyLength * 0.6f;
+        float distance = (float) (bodyWidth * 0.35f);
+        
+        if (stick)
         {
             gl.glScalef(0.2f, 0.2f, 1f);
         }
-        gl.glTranslatef(0f, 0f,-0.6f); // Translate to be below body
-        drawLimb(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth, 0.25f); // Left arm
-        drawLimb(gl, glu, glut, stickFigure, tAnim, bodyLength, bodyWidth, -0.25f); // Right arm
+        gl.glTranslatef(0f, 0f,-translation); // Translate to be below body
+        drawLimb(tAnim, distance);
+        drawLimb(tAnim, -distance);
         gl.glPopMatrix();
     }
     
-    /**
+    /***
      * Draws the robot head
      */
-    public void drawHead(GL2 gl, GLU glu, GLUT glut, boolean stickFigure, float tAnim, float bodyLength, double bodyWidth){
+    public void drawHead(float tAnim){
         gl.glPushMatrix();
-        if (stickFigure)
+        if (stick)
         {
             gl.glScalef(0.2f, 0.2f, 1f);
         }
-        gl.glTranslatef(0f, 0f, 1.0f); // Translate to be above body
+        gl.glTranslatef(0f, 0f, bodyLength); // Translate to be above body
         
         gl.glPushMatrix();
-        gl.glTranslatef(0f, 0f, 0.1f); // Translate for gap between body.
+        gl.glTranslatef(0f, 0f, bodyLength * 0.1f); // Translate for gap between body.
         double[] eqn = {0.0, 0.0, 1.0, 0.0};
-        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
-        gl.glEnable (gl.GL_CLIP_PLANE0);
+        gl.glClipPlane (GL2.GL_CLIP_PLANE0, eqn,0);
+        gl.glEnable (GL2.GL_CLIP_PLANE0);
         gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
         glut.glutSolidSphere(bodyWidth, 30, 30);
-        gl.glDisable (gl.GL_CLIP_PLANE0);
+        gl.glDisable (GL2.GL_CLIP_PLANE0);
         gl.glPopMatrix();
         
-        // draw eyes
-        gl.glPushMatrix();
-        gl.glColor3f(0f,0f,0f); // Colour black
-        gl.glTranslatef(-0.2f,0.65f,0.3f);
-        glut.glutSolidSphere(0.05, 30, 30);
-        gl.glColor3f(0f,1f,0f);
-        gl.glPopMatrix();
-        
-        gl.glPushMatrix();
-        gl.glColor3f(0f,0f,0f); // Colour black
-        gl.glTranslatef(0.2f,0.65f,0.3f);
-        glut.glutSolidSphere(0.05, 30, 30);
-        gl.glColor3f(0f,1f,0f);
-        gl.glPopMatrix();
         
         //Draw Left ear
         gl.glPushMatrix();
-        gl.glTranslatef(0.4f,0f,0.55f);
+        gl.glTranslatef((float) (scale *0.4f),0f, (float) (scale * 0.55f));
         gl.glRotatef(45, 0f, 1f, 0f);
         gl.glPushMatrix();
-        gl.glTranslatef(0f,0f,0.4f);
-        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
-        gl.glEnable (gl.GL_CLIP_PLANE0);
-        gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
-        glut.glutSolidSphere(0.05f, 30, 30);
-        gl.glDisable (gl.GL_CLIP_PLANE0);
+        gl.glTranslatef(0f,0f, (float) (scale * 0.4f));
+        glut.glutSolidSphere(scale * 0.05f, 30, 30);
         gl.glPopMatrix();
-        glut.glutSolidCylinder(0.05,0.4,30,30);
+        glut.glutSolidCylinder(scale * 0.05f, scale * 0.4,30,30);
         gl.glPopMatrix();
-        
-        //Draw right ear
+                
+          //Draw right ear
         gl.glPushMatrix();
-        gl.glTranslatef(-0.4f,0f,0.55f);
+        gl.glTranslatef((float) (scale *-0.4f),0f, (float) (scale * 0.55f));
         gl.glRotatef(45, 0f, -1f, 0f);
         gl.glPushMatrix();
-        gl.glTranslatef(0f,0f,0.4f);
-        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
-        gl.glEnable (gl.GL_CLIP_PLANE0);
+        gl.glTranslatef(0f,0f, (float) (scale * 0.4f));
         gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
-        glut.glutSolidSphere(0.05f, 30, 30);
-        gl.glDisable (gl.GL_CLIP_PLANE0);
+        glut.glutSolidSphere(scale * 0.05f, 30, 30);
         gl.glPopMatrix();
-        glut.glutSolidCylinder(0.05,0.4,30,30);
+        glut.glutSolidCylinder(scale * 0.05, scale * 0.4,30,30);
+        gl.glPopMatrix();
+        
+        
+        //Set black
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.BLACK.shininess);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.BLACK.diffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.BLACK.specular, 0);
+        // draw eyes
+        gl.glPushMatrix();
+        gl.glTranslatef((float) (-bodyWidth * 0.3f), (float) (bodyWidth* 0.9f),bodyLength * 0.3f);
+        glut.glutSolidSphere(0.05 * scale, 30, 30);
+        gl.glPopMatrix();
+        
+        gl.glPushMatrix();
+        gl.glTranslatef((float) (bodyWidth * 0.3f), (float) (bodyWidth* 0.9f),bodyLength * 0.3f);
+        glut.glutSolidSphere(0.05 * scale, 30, 30);
         gl.glPopMatrix();
         
         gl.glPopMatrix();
