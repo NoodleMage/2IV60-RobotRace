@@ -1,7 +1,11 @@
 package robotrace;
 
 import javax.media.opengl.GL;
+import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL2.*;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 
 /**
  * Handles all of the RobotRace graphics functionality, which should be extended
@@ -166,6 +170,8 @@ public class RobotRace extends Base {
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
+
+        setLighting();
     }
 
     /**
@@ -196,8 +202,36 @@ public class RobotRace extends Base {
         robots[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
         robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
 
-        // Draw the first robot.
-        //robots[0].draw(gl, glu, glut, false, gs.tAnim);
+        //Draw the Gold Robot
+        Material material = Material.ANDROID;
+        
+        switch (material) {
+            case GOLD:
+                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.GOLD.shininess);
+                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.GOLD.diffuse, 0);
+                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.GOLD.specular, 0);
+                break;
+            case SILVER:
+                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.SILVER.shininess);
+                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.SILVER.diffuse, 0);
+                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.SILVER.specular, 0);
+                break;
+            case WOOD:
+                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.WOOD.shininess);
+                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.WOOD.diffuse, 0);
+                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.WOOD.specular, 0);
+                break;
+            case ORANGE:
+                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.ORANGE.shininess);
+                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.ORANGE.diffuse, 0);
+                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.ORANGE.specular, 0);
+                break;
+            default:
+                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.ANDROID.shininess);
+                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.ANDROID.diffuse, 0);
+                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.ANDROID.specular, 0);
+                break;  
+        }
         robots[0].draw(gl, glu, glut, gs.showStick, gs.tAnim);
 
         // Draw the race track.
@@ -231,11 +265,12 @@ public class RobotRace extends Base {
         gl.glPushMatrix();
         
         // 2D array to store the colors
-        float[][] colors = new float[][]{
-            {255,0,0},  // Red
-            {0,255,0},  // Green
-            {0,0,255}   // Blue
-        };
+//        float[][] colors = new float[][]{
+//            {255,0,0},  // Red
+//            {0,255,0},  // Green
+//            {0,0,255}   // Blue
+//        };
+        Material[] colors = {Material.RED,Material.GREEN,Material.BLUE};
         // 2D array to store the line translations
         float[][] translation = new float[][]{
             {0.5f, 0f, 0f},  // Red
@@ -257,7 +292,9 @@ public class RobotRace extends Base {
             // Push new matrix to stack to modify safely
             gl.glPushMatrix();
             // Set the color accordingly
-            gl.glColor3f(colors[i][0], colors[i][1], colors[i][2]);
+            gl.glMaterialf(GL_FRONT, GL_SHININESS, colors[i].shininess);
+            gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, colors[i].diffuse, 0);
+            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, colors[i].specular, 0); 
             // Translate the matrix accordingly
             gl.glTranslatef(translation[i][0], translation[i][1], translation[i][2]);
             // Rotate the matrix accordingly
@@ -283,7 +320,9 @@ public class RobotRace extends Base {
         // Push new matrix to stack to edit safely
         gl.glPushMatrix();
         // Set the Draw color to yellow
-        gl.glColor3f(255f, 255f, 0f);
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.YELLOW.shininess);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.YELLOW.diffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.YELLOW.specular, 0); 
         // Draw the sphere
         glut.glutSolidSphere(0.15f, 20, 20);
         // Pop the matrix back to original state
@@ -295,6 +334,38 @@ public class RobotRace extends Base {
         gl.glColor3f(0f, 0f, 0f);
     }
 
+    public void setLighting()
+    {
+        //Enable shading, ambient light and one light source. Use a light source at infinity.
+        //The direction of the light is such that light comes more or less from the direction
+        //of the camera. The direction of the light is shifted by 10 degrees to the left and
+        //upwards with regard to the view direction.
+         // Prepare light parameters.
+        
+        float theta = gs.theta;
+        float phi = gs.phi;
+        float radius = gs.vDist;
+        
+        double x = radius * Math.cos(theta) * Math.sin(phi);
+        double y = radius * Math.sin(theta) * Math.sin(phi);
+        double z = radius * Math.cos(phi);
+        
+        float[] lightPos = {(float) x - 1f,(float) y,(float)z + 1f, 1.0f};
+        
+        float[] lightColorAmbient = {0.2f, 0.2f, 0.2f, 1f};
+        float[] lightColorSpecular = {0.8f, 0.8f, 0.8f, 1f};
+        float[] lightColorDiffuse = {1f,1f,1f,1f};
+
+        // Set light parameters.
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, lightPos, 0);
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, lightColorAmbient, 0);
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, lightColorSpecular, 0);
+
+        // Enable lighting in GL.
+        gl.glShadeModel(GL_SMOOTH); // Use smooth shading
+        gl.glEnable(gl.GL_LIGHT0);
+        gl.glEnable(gl.GL_LIGHTING);
+    }
 
     /**
      * Main program execution body, delegates to an instance of the RobotRace

@@ -155,35 +155,35 @@ class Robot {
         gl.glColor3f(0f,1f,0f);
         gl.glPopMatrix();
         
-        //Draw Left ear
-        gl.glPushMatrix();
-        gl.glTranslatef(0.4f,0f,0.55f);
-        gl.glRotatef(45, 0f, 1f, 0f);
-        gl.glPushMatrix();
-        gl.glTranslatef(0f,0f,0.4f);
-        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
-        gl.glEnable (gl.GL_CLIP_PLANE0);
-        gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
-        glut.glutSolidSphere(0.05f, 30, 30);
-        gl.glDisable (gl.GL_CLIP_PLANE0);
-        gl.glPopMatrix();
-        glut.glutSolidCylinder(0.05,0.4,30,30);
-        gl.glPopMatrix();
-        
-        //Draw right ear
-        gl.glPushMatrix();
-        gl.glTranslatef(-0.4f,0f,0.55f);
-        gl.glRotatef(45, 0f, -1f, 0f);
-        gl.glPushMatrix();
-        gl.glTranslatef(0f,0f,0.4f);
-        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
-        gl.glEnable (gl.GL_CLIP_PLANE0);
-        gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
-        glut.glutSolidSphere(0.05f, 30, 30);
-        gl.glDisable (gl.GL_CLIP_PLANE0);
-        gl.glPopMatrix();
-        glut.glutSolidCylinder(0.05,0.4,30,30);
-        gl.glPopMatrix();
+//        //Draw Left ear
+//        gl.glPushMatrix();
+//        gl.glTranslatef(0.4f,0f,0.55f);
+//        gl.glRotatef(45, 0f, 1f, 0f);
+//        gl.glPushMatrix();
+//        gl.glTranslatef(0f,0f,0.4f);
+//        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
+//        gl.glEnable (gl.GL_CLIP_PLANE0);
+//        gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
+//        glut.glutSolidSphere(0.05f, 30, 30);
+//        gl.glDisable (gl.GL_CLIP_PLANE0);
+//        gl.glPopMatrix();
+//        glut.glutSolidCylinder(0.05,0.4,30,30);
+//        gl.glPopMatrix();
+//        
+//        //Draw right ear
+//        gl.glPushMatrix();
+//        gl.glTranslatef(-0.4f,0f,0.55f);
+//        gl.glRotatef(45, 0f, -1f, 0f);
+//        gl.glPushMatrix();
+//        gl.glTranslatef(0f,0f,0.4f);
+//        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
+//        gl.glEnable (gl.GL_CLIP_PLANE0);
+//        gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
+//        glut.glutSolidSphere(0.05f, 30, 30);
+//        gl.glDisable (gl.GL_CLIP_PLANE0);
+//        gl.glPopMatrix();
+//        glut.glutSolidCylinder(0.05,0.4,30,30);
+//        gl.glPopMatrix();
         
         gl.glPopMatrix();
     }
