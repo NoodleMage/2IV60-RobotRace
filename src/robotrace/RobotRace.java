@@ -1,7 +1,7 @@
 package robotrace;
 
-import javax.media.opengl.GL;
 import static javax.media.opengl.GL.GL_FRONT;
+import javax.media.opengl.GL2;
 import static javax.media.opengl.GL2.*;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
@@ -188,9 +188,6 @@ public class RobotRace extends Base {
         // Clear depth buffer.
         gl.glClear(GL_DEPTH_BUFFER_BIT);
 
-        // Set color to black.
-        gl.glColor3f(0f, 0f, 0f);
-
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // Draw the axis frame.
@@ -201,59 +198,20 @@ public class RobotRace extends Base {
         // Get the position and direction of the first robot.
         robots[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
         robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
-
-        //Draw the Gold Robot
-        Material material = Material.ANDROID;
         
-        switch (material) {
-            case GOLD:
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.GOLD.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.GOLD.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.GOLD.specular, 0);
-                break;
-            case SILVER:
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.SILVER.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.SILVER.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.SILVER.specular, 0);
-                break;
-            case WOOD:
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.WOOD.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.WOOD.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.WOOD.specular, 0);
-                break;
-            case ORANGE:
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.ORANGE.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.ORANGE.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.ORANGE.specular, 0);
-                break;
-            default:
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.ANDROID.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.ANDROID.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.ANDROID.specular, 0);
-                break;  
+        gl.glPushMatrix();
+        gl.glTranslatef(0f, 1.0f, 0f);
+        for (int i = 0; i < 4; i++) {
+        gl.glTranslatef(1.0f, 0f, 0f);
+        robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
         }
-        robots[0].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+        gl.glPopMatrix();
 
         // Draw the race track.
         raceTracks[gs.trackNr].draw(gl, glu, glut);
 
         // Draw the terrain.
         terrain.draw(gl, glu, glut);
-
-        // Unit box around origin.
-        //glut.glutWireCube(1f);
-
-        // Move in x-direction.
-        gl.glTranslatef(2f, 0f, 0f);
-
-        // Rotate 30 degrees, around z-axis.
-        gl.glRotatef(30f, 0f, 0f, 1f);
-
-        // Scale in z-direction.
-        gl.glScalef(1f, 1f, 2f);
-
-        // Translated, rotated, scaled box.
-        //glut.glutWireCube(1f);
     }
 
     /**
@@ -264,13 +222,9 @@ public class RobotRace extends Base {
         // Push new matrix to stack to modify safely
         gl.glPushMatrix();
         
-        // 2D array to store the colors
-//        float[][] colors = new float[][]{
-//            {255,0,0},  // Red
-//            {0,255,0},  // Green
-//            {0,0,255}   // Blue
-//        };
+        // Array to store the material
         Material[] colors = {Material.RED,Material.GREEN,Material.BLUE};
+        
         // 2D array to store the line translations
         float[][] translation = new float[][]{
             {0.5f, 0f, 0f},  // Red
@@ -352,19 +306,16 @@ public class RobotRace extends Base {
         
         float[] lightPos = {(float) x - 1f,(float) y,(float)z + 1f, 1.0f};
         
-        float[] lightColorAmbient = {0.2f, 0.2f, 0.2f, 1f};
-        float[] lightColorSpecular = {0.8f, 0.8f, 0.8f, 1f};
-        float[] lightColorDiffuse = {1f,1f,1f,1f};
+        float[] lightColorAmbient = {0.5f, 0.5f, 0.5f, 1f};
 
         // Set light parameters.
-        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, lightPos, 0);
-        gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, lightColorAmbient, 0);
-        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, lightColorSpecular, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightPos, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightColorAmbient, 0);
 
         // Enable lighting in GL.
         gl.glShadeModel(GL_SMOOTH); // Use smooth shading
-        gl.glEnable(gl.GL_LIGHT0);
-        gl.glEnable(gl.GL_LIGHTING);
+        gl.glEnable(GL2.GL_LIGHT0);
+        gl.glEnable(GL2.GL_LIGHTING);
     }
 
     /**

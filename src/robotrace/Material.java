@@ -20,7 +20,7 @@ public enum Material {
      * Modify the default values to make it look like silver.
      */
     SILVER (
-          new float[] {RGBToFloat(158), RGBToFloat(158), RGBToFloat(158), 1.0f},
+        new float[] {RGBToFloat(158), RGBToFloat(158), RGBToFloat(158), 1.0f},
         new float[] {RGBToFloat(189), RGBToFloat(189), RGBToFloat(189), 1.0f},     
       128),
 
@@ -76,6 +76,15 @@ public enum Material {
      YELLOW (
         new float[] {RGBToFloat(255), RGBToFloat(235), RGBToFloat(59), 1.0f},
         new float[] {RGBToFloat(255), RGBToFloat(238), RGBToFloat(88), 1.0f},     
+      100f),
+     
+       /**
+     * Orange material properties.
+     * Modify the default values to make it look like orange.
+     */
+     BLACK (
+        new float[] {RGBToFloat(0), RGBToFloat(0), RGBToFloat(0), 1.0f},
+        new float[] {RGBToFloat(0), RGBToFloat(0), RGBToFloat(0), 1.0f},     
       100f),
      
       /** 
