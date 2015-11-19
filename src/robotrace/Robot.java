@@ -1,8 +1,11 @@
 package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
-import java.nio.DoubleBuffer;
+import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import javax.media.opengl.glu.GLU;
 
 /**
@@ -47,13 +50,16 @@ class Robot {
         this.glut = glut1;
         this.stick = stickFigure; 
         
-        gl.glColor3f(0f,1f,0f); // Colour the thing green
-        gl.glTranslatef(1f, 1f,1f); // Translate so it doesnt interfere with axis frame
+        //Set material
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, material.diffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
         
-       drawHead(tAnim);
+       //Draw Robot
        drawBody(tAnim);
        drawLegs(tAnim);
        drawArms(tAnim);
+       drawHead(tAnim);
     }
     
     /**
@@ -119,7 +125,7 @@ class Robot {
         gl.glPopMatrix();
     }
     
-    /**
+    /***
      * Draws the robot head
      */
     public void drawHead(float tAnim){
@@ -133,56 +139,51 @@ class Robot {
         gl.glPushMatrix();
         gl.glTranslatef(0f, 0f, bodyLength * 0.1f); // Translate for gap between body.
         double[] eqn = {0.0, 0.0, 1.0, 0.0};
-        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
-        gl.glEnable (gl.GL_CLIP_PLANE0);
+        gl.glClipPlane (GL2.GL_CLIP_PLANE0, eqn,0);
+        gl.glEnable (GL2.GL_CLIP_PLANE0);
         gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
         glut.glutSolidSphere(bodyWidth, 30, 30);
-        gl.glDisable (gl.GL_CLIP_PLANE0);
+        gl.glDisable (GL2.GL_CLIP_PLANE0);
         gl.glPopMatrix();
         
-        // draw eyes
-        gl.glPushMatrix();
-        gl.glColor3f(0f,0f,0f); // Colour black
-        gl.glTranslatef((float) (-bodyWidth * 0.3f), (float) (bodyWidth* 0.9f),bodyLength * 0.3f);
-        glut.glutSolidSphere(0.05, 30, 30);
-        gl.glColor3f(0f,1f,0f);
-        gl.glPopMatrix();
-        
-        gl.glPushMatrix();
-        gl.glColor3f(0f,0f,0f); // Colour black
-        gl.glTranslatef((float) (bodyWidth * 0.3f), (float) (bodyWidth* 0.9f),bodyLength * 0.3f);
-        glut.glutSolidSphere(0.05, 30, 30);
-        gl.glColor3f(0f,1f,0f);
-        gl.glPopMatrix();
         
         //Draw Left ear
         gl.glPushMatrix();
-        gl.glTranslatef(0.4f,0f,0.55f);
+        gl.glTranslatef((float) (scale *0.4f),0f, (float) (scale * 0.55f));
         gl.glRotatef(45, 0f, 1f, 0f);
         gl.glPushMatrix();
-        gl.glTranslatef(0f,0f,0.4f);
-        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
-        gl.glEnable (gl.GL_CLIP_PLANE0);
-        gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
-        glut.glutSolidSphere(0.05f, 30, 30);
-        gl.glDisable (gl.GL_CLIP_PLANE0);
+        gl.glTranslatef(0f,0f, (float) (scale * 0.4f));
+        glut.glutSolidSphere(scale * 0.05f, 30, 30);
         gl.glPopMatrix();
-        glut.glutSolidCylinder(0.05,0.4,30,30);
+        glut.glutSolidCylinder(scale * 0.05f, scale * 0.4,30,30);
         gl.glPopMatrix();
-        
-        //Draw right ear
+                
+          //Draw right ear
         gl.glPushMatrix();
-        gl.glTranslatef(-0.4f,0f,0.55f);
+        gl.glTranslatef((float) (scale *-0.4f),0f, (float) (scale * 0.55f));
         gl.glRotatef(45, 0f, -1f, 0f);
         gl.glPushMatrix();
-        gl.glTranslatef(0f,0f,0.4f);
-        gl.glClipPlane (gl.GL_CLIP_PLANE0, eqn,0);
-        gl.glEnable (gl.GL_CLIP_PLANE0);
+        gl.glTranslatef(0f,0f, (float) (scale * 0.4f));
         gl.glRotatef (90.0f, 1.0f, 0.0f, 0.0f);
-        glut.glutSolidSphere(0.05f, 30, 30);
-        gl.glDisable (gl.GL_CLIP_PLANE0);
+        glut.glutSolidSphere(scale * 0.05f, 30, 30);
         gl.glPopMatrix();
-        glut.glutSolidCylinder(0.05,0.4,30,30);
+        glut.glutSolidCylinder(scale * 0.05, scale * 0.4,30,30);
+        gl.glPopMatrix();
+        
+        
+        //Set black
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.BLACK.shininess);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.BLACK.diffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.BLACK.specular, 0);
+        // draw eyes
+        gl.glPushMatrix();
+        gl.glTranslatef((float) (-bodyWidth * 0.3f), (float) (bodyWidth* 0.9f),bodyLength * 0.3f);
+        glut.glutSolidSphere(0.05 * scale, 30, 30);
+        gl.glPopMatrix();
+        
+        gl.glPushMatrix();
+        gl.glTranslatef((float) (bodyWidth * 0.3f), (float) (bodyWidth* 0.9f),bodyLength * 0.3f);
+        glut.glutSolidSphere(0.05 * scale, 30, 30);
         gl.glPopMatrix();
         
         gl.glPopMatrix();

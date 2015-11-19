@@ -1,7 +1,11 @@
 package robotrace;
 
-import javax.media.opengl.GL;
+import static javax.media.opengl.GL.GL_FRONT;
+import javax.media.opengl.GL2;
 import static javax.media.opengl.GL2.*;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 
 /**
  * Handles all of the RobotRace graphics functionality, which should be extended
@@ -166,6 +170,8 @@ public class RobotRace extends Base {
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
+
+        setLighting();
     }
 
     /**
@@ -182,9 +188,6 @@ public class RobotRace extends Base {
         // Clear depth buffer.
         gl.glClear(GL_DEPTH_BUFFER_BIT);
 
-        // Set color to black.
-        gl.glColor3f(0f, 0f, 0f);
-
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // Draw the axis frame.
@@ -195,31 +198,20 @@ public class RobotRace extends Base {
         // Get the position and direction of the first robot.
         robots[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
         robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
-
-        // Draw the first robot.
-        //robots[0].draw(gl, glu, glut, false, gs.tAnim);
-        robots[0].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+        
+        gl.glPushMatrix();
+        gl.glTranslatef(0f, 1.0f, 0f);
+        for (int i = 0; i < 4; i++) {
+        gl.glTranslatef(1.0f, 0f, 0f);
+        robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+        }
+        gl.glPopMatrix();
 
         // Draw the race track.
         raceTracks[gs.trackNr].draw(gl, glu, glut);
 
         // Draw the terrain.
         terrain.draw(gl, glu, glut);
-
-        // Unit box around origin.
-        //glut.glutWireCube(1f);
-
-        // Move in x-direction.
-        gl.glTranslatef(2f, 0f, 0f);
-
-        // Rotate 30 degrees, around z-axis.
-        gl.glRotatef(30f, 0f, 0f, 1f);
-
-        // Scale in z-direction.
-        gl.glScalef(1f, 1f, 2f);
-
-        // Translated, rotated, scaled box.
-        //glut.glutWireCube(1f);
     }
 
     /**
@@ -230,12 +222,9 @@ public class RobotRace extends Base {
         // Push new matrix to stack to modify safely
         gl.glPushMatrix();
         
-        // 2D array to store the colors
-        float[][] colors = new float[][]{
-            {255,0,0},  // Red
-            {0,255,0},  // Green
-            {0,0,255}   // Blue
-        };
+        // Array to store the material
+        Material[] colors = {Material.RED,Material.GREEN,Material.BLUE};
+        
         // 2D array to store the line translations
         float[][] translation = new float[][]{
             {0.5f, 0f, 0f},  // Red
@@ -257,7 +246,9 @@ public class RobotRace extends Base {
             // Push new matrix to stack to modify safely
             gl.glPushMatrix();
             // Set the color accordingly
-            gl.glColor3f(colors[i][0], colors[i][1], colors[i][2]);
+            gl.glMaterialf(GL_FRONT, GL_SHININESS, colors[i].shininess);
+            gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, colors[i].diffuse, 0);
+            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, colors[i].specular, 0); 
             // Translate the matrix accordingly
             gl.glTranslatef(translation[i][0], translation[i][1], translation[i][2]);
             // Rotate the matrix accordingly
@@ -283,7 +274,9 @@ public class RobotRace extends Base {
         // Push new matrix to stack to edit safely
         gl.glPushMatrix();
         // Set the Draw color to yellow
-        gl.glColor3f(255f, 255f, 0f);
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.YELLOW.shininess);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.YELLOW.diffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.YELLOW.specular, 0); 
         // Draw the sphere
         glut.glutSolidSphere(0.15f, 20, 20);
         // Pop the matrix back to original state
@@ -295,6 +288,35 @@ public class RobotRace extends Base {
         gl.glColor3f(0f, 0f, 0f);
     }
 
+    public void setLighting()
+    {
+        //Enable shading, ambient light and one light source. Use a light source at infinity.
+        //The direction of the light is such that light comes more or less from the direction
+        //of the camera. The direction of the light is shifted by 10 degrees to the left and
+        //upwards with regard to the view direction.
+         // Prepare light parameters.
+        
+        float theta = gs.theta;
+        float phi = gs.phi;
+        float radius = gs.vDist;
+        
+        double x = radius * Math.cos(theta) * Math.sin(phi);
+        double y = radius * Math.sin(theta) * Math.sin(phi);
+        double z = radius * Math.cos(phi);
+        
+        float[] lightPos = {(float) x - 1f,(float) y,(float)z + 1f, 1.0f};
+        
+        float[] lightColorAmbient = {0.5f, 0.5f, 0.5f, 1f};
+
+        // Set light parameters.
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightPos, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightColorAmbient, 0);
+
+        // Enable lighting in GL.
+        gl.glShadeModel(GL_SMOOTH); // Use smooth shading
+        gl.glEnable(GL2.GL_LIGHT0);
+        gl.glEnable(GL2.GL_LIGHTING);
+    }
 
     /**
      * Main program execution body, delegates to an instance of the RobotRace
