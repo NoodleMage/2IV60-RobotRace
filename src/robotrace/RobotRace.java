@@ -43,7 +43,7 @@ public class RobotRace extends Base {
     /**
      * Array of the four robots.
      */
-    private final Robot[] robots;
+    private final Bender[] benders;
 
     /**
      * Instance of the camera.
@@ -67,22 +67,22 @@ public class RobotRace extends Base {
     public RobotRace() {
 
         // Create a new array of four robots
-        robots = new Robot[4];
+        benders = new Bender[4];
 
         // Initialize robot 0
-        robots[0] = new Robot(Material.GOLD
+        benders[0] = new Bender(Material.GOLD
         /* add other parameters that characterize this robot */);
 
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER
+        benders[1] = new Bender(Material.SILVER
         /* add other parameters that characterize this robot */);
 
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD
+        benders[2] = new Bender(Material.WOOD
         /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE
+        benders[3] = new Bender(Material.ORANGE
         /* add other parameters that characterize this robot */);
 
         // Initialize the camera
@@ -166,7 +166,7 @@ public class RobotRace extends Base {
 
         // Update the view according to the camera mode and robot of interest.
         // For camera modes 1 to 4, determine which robot to focus on.
-        camera.update(gs, robots[0]);
+        camera.update(gs, benders[0]);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
@@ -196,14 +196,14 @@ public class RobotRace extends Base {
         }
 
         // Get the position and direction of the first robot.
-        robots[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
-        robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
+        benders[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
+        benders[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
         
         gl.glPushMatrix();
         gl.glTranslatef(0f, 1.0f, 0f);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 1; i++) {
         gl.glTranslatef(1.0f, 0f, 0f);
-        robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+        benders[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
         }
         gl.glPopMatrix();
 
