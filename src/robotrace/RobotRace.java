@@ -43,7 +43,7 @@ public class RobotRace extends Base {
     /**
      * Array of the four robots.
      */
-    private final Bender[] benders;
+    private final Robot[] robots;
 
     /**
      * Instance of the camera.
@@ -67,22 +67,22 @@ public class RobotRace extends Base {
     public RobotRace() {
 
         // Create a new array of four robots
-        benders = new Bender[4];
+        robots = new Robot[4];
 
         // Initialize robot 0
-        benders[0] = new Bender(Material.GOLD
+        robots[0] = new Robot(Material.GOLD
         /* add other parameters that characterize this robot */);
 
         // Initialize robot 1
-        benders[1] = new Bender(Material.SILVER
+        robots[1] = new Robot(Material.SILVER
         /* add other parameters that characterize this robot */);
 
         // Initialize robot 2
-        benders[2] = new Bender(Material.WOOD
+        robots[2] = new Robot(Material.WOOD
         /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
-        benders[3] = new Bender(Material.ORANGE
+        robots[3] = new Robot(Material.ORANGE
         /* add other parameters that characterize this robot */);
 
         // Initialize the camera
@@ -156,8 +156,9 @@ public class RobotRace extends Base {
         gl.glLoadIdentity();
 
         // Set the perspective.
-        // Modify this to meet the requirements in the assignment.
+        // calculate angle by dividing opposite by adjacent line
         Double angle = Math.atan2(gs.vDist,(0.5*gs.vWidth));
+        //Set perspective equal to angle in degrees 
         glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.1*gs.vDist, 10 * gs.vDist);
 
         // Set camera.
@@ -166,7 +167,7 @@ public class RobotRace extends Base {
 
         // Update the view according to the camera mode and robot of interest.
         // For camera modes 1 to 4, determine which robot to focus on.
-        camera.update(gs, benders[0]);
+        camera.update(gs, robots[0]);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
@@ -190,20 +191,26 @@ public class RobotRace extends Base {
 
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        // Draw the axis frame.
+        // Draw the axis frame if desired.
         if (gs.showAxes) {
             drawAxisFrame();
         }
 
         // Get the position and direction of the first robot.
-        benders[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
-        benders[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
+        robots[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
+        robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
         
+        //Draw robots
         gl.glPushMatrix();
+        
+        //Move robot away from axis.
         gl.glTranslatef(0f, 1.0f, 0f);
-        for (int i = 0; i < 1; i++) {
-        gl.glTranslatef(1.0f, 0f, 0f);
-        benders[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+        for (int i = 0; i < 4; i++) {
+            //Move robot's next to each other
+            //We know this is not pretty but we will change this in the future.
+            gl.glTranslatef(1.0f, 0f, 0f);
+            //Draw robot
+            robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
         }
         gl.glPopMatrix();
 
@@ -284,8 +291,6 @@ public class RobotRace extends Base {
         
         // Pop the matrix back to original state
         gl.glPopMatrix();
-        // Reset the draw color to black
-        gl.glColor3f(0f, 0f, 0f);
     }
 
     public void setLighting()
@@ -296,24 +301,22 @@ public class RobotRace extends Base {
         //upwards with regard to the view direction.
          // Prepare light parameters.
         
-        float theta = gs.theta;
-        float phi = gs.phi;
-        float radius = gs.vDist;
+        //In future can be moved to camera
         
-        double x = radius * Math.cos(theta) * Math.sin(phi);
-        double y = radius * Math.sin(theta) * Math.sin(phi);
-        double z = radius * Math.cos(phi);
+        //Get position by camera vector. Modify to extend by 10 degree angle
+        float[] lightPos = {(float) camera.eye.x - 1f,(float) camera.eye.y,(float)camera.eye.z + 1f, 1.0f};
         
-        float[] lightPos = {(float) x - 1f,(float) y,(float)z + 1f, 1.0f};
-        
+        //Set ambient lighting
         float[] lightColorAmbient = {0.5f, 0.5f, 0.5f, 1f};
 
         // Set light parameters.
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightPos, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightColorAmbient, 0);
 
-        // Enable lighting in GL.
-        gl.glShadeModel(GL_SMOOTH); // Use smooth shading
+        // Enable smooth shadow in GL.
+        gl.glShadeModel(GL_SMOOTH); 
+        
+        //Enable lighting
         gl.glEnable(GL2.GL_LIGHT0);
         gl.glEnable(GL2.GL_LIGHTING);
     }

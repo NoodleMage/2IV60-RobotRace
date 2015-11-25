@@ -19,7 +19,7 @@ class Camera {
      * selected camera mode.
      */
     //public void update(GlobalState gs, Robot focus) {
-    public void update(GlobalState gs, Bender focus) {
+    public void update(GlobalState gs, Robot focus) {
 
         switch (gs.camMode) {
             
@@ -71,7 +71,7 @@ class Camera {
      * Computes eye, center, and up, based on the helicopter mode.
      * The camera should focus on the robot.
      */
-    private void setHelicopterMode(GlobalState gs, Bender focus) {
+    private void setHelicopterMode(GlobalState gs, Robot focus) {
         // code goes here ...
     }
 
@@ -79,7 +79,7 @@ class Camera {
      * Computes eye, center, and up, based on the motorcycle mode.
      * The camera should focus on the robot.
      */
-    private void setMotorCycleMode(GlobalState gs, Bender focus) {
+    private void setMotorCycleMode(GlobalState gs, Robot focus) {
         // code goes here ...
     }
 
@@ -87,7 +87,7 @@ class Camera {
      * Computes eye, center, and up, based on the first person mode.
      * The camera should view from the perspective of the robot.
      */
-    private void setFirstPersonMode(GlobalState gs, Bender focus) {
+    private void setFirstPersonMode(GlobalState gs, Robot focus) {
         // code goes here ...
     }
     
@@ -95,7 +95,7 @@ class Camera {
      * Computes eye, center, and up, based on the auto mode.
      * The above modes are alternated.
      */
-    private void setAutoMode(GlobalState gs, Bender focus) {
+    private void setAutoMode(GlobalState gs, Robot focus) {
         // code goes here ...
     }
 
