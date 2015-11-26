@@ -8,7 +8,6 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.*;
-//import javax.media.opengl.glu.GLUquadric;
 
 /**
 * Represents a Robot, to be implemented according to the Assignments.
@@ -43,6 +42,7 @@ class Bender {
      */
     public Bender(Material material
         /* add other parameters that characterize this robot */) {
+        
         this.material = material;
     }
 
@@ -65,6 +65,7 @@ class Bender {
         gl.glPushMatrix();
         // Apply the universal scaling of the bot
         gl.glScaled(scale, scale, scale);
+        gl.glTranslated(0,0,bodyHeight*.7);
         
         drawBody(tAnim);
         drawLegs(tAnim);
@@ -96,11 +97,23 @@ class Bender {
         glut.glutSolidSphere(antennaBaseRadius, slices, stacks);
         gl.glTranslated(0, 0, antennaBaseRadius*5);
         glut.glutSolidSphere(antennaBaseRadius/2, slices, stacks);
-        //test
+        // Draw the eyesocket
         gl.glTranslated(0, foreheadRadius*1.5, -faceHeight);
+        gl.glPushMatrix();  
         gl.glRotated(90, 1, 0, 0);
         gl.glScaled(1, 0.5, 0.5);
         glut.glutSolidCylinder(foreheadRadius, faceHeight, slices, stacks);
+        gl.glPopMatrix();
+        int[] t = new int[]{1, -1};
+            for (int i = 0; i < 2; i++) {
+                gl.glPushMatrix();
+                
+                gl.glTranslated((headWidth*.2)*t[i], .3 , 0);
+                gl.glRotated(90, 1, 0, 0);
+                glut.glutSolidCylinder(foreheadRadius*.4, foreheadRadius, slices, stacks);
+                
+                gl.glPopMatrix();
+            } 
         gl.glPopMatrix();
     }
     
@@ -109,12 +122,29 @@ class Bender {
      */
     public void drawBody(float tAnim){
         gl.glPushMatrix();
-        //GLUquadric test = glu.gluNewQuadric();
-        //glu.gluCylinder(test, 6.5, 9, 11, 30, 30);
-        //glu.gluDeleteQuadric(test);
         
         // Draw the body
-        glut.glutSolidCylinder(bodyWidthRadius, bodyHeight, slices, stacks);
+        //glut.glutSolidCylinder(bodyWidthRadius, bodyHeight, slices, stacks
+        
+        gl.glPushMatrix();
+            glut.glutSolidCylinder(3, 0, slices, slices);
+            //gl.glTranslated(0, 0, bodyHeight/2);
+            
+            gl.glPushMatrix();
+            //gl.glTranslated(0, 0, -bodyHeight);
+            double[] eqn = {0.0, 0.0, 1.0, 0.0};
+                //Create clip plane and enable plane
+                gl.glClipPlane (GL2.GL_CLIP_PLANE0, eqn,0);
+                gl.glTranslated(0, 0, bodyHeight);
+                gl.glEnable (GL2.GL_CLIP_PLANE0);
+                
+                glut.glutSolidCone(4.5, -bodyHeight*3, slices, stacks);
+                //Disable plane (otherwise all shapes are affected)
+                gl.glDisable (GL2.GL_CLIP_PLANE0);
+            gl.glPopMatrix();
+            
+        gl.glPopMatrix();
+        
         gl.glTranslated(0, 0, bodyHeight);
         // Draw the "neck"
         glut.glutSolidCone(bodyWidthRadius, bodyHeight*0.3, slices, stacks);
@@ -126,13 +156,18 @@ class Bender {
      */
     public void drawArms(float tAnim){
         gl.glPushMatrix();
-
-        gl.glPopMatrix();
-    }
-    
-    public void drawLimb(float tAnim, float t){        
-        gl.glPushMatrix();
-
+        gl.glTranslated(0, 0, bodyHeight*.9);
+        int[] t = new int[]{1, -1};
+            for (int i = 0; i < 2; i++) {
+                gl.glPushMatrix();
+                gl.glTranslated((bodyWidth*.5)*t[i], 0, 0);
+                gl.glRotated(150*t[i], 0, 1, 0);
+                glut.glutSolidSphere(bodyWidthRadius/6, slices, stacks);
+                glut.glutSolidCylinder(bodyWidthRadius/6, bodyHeight*.75, slices, stacks);
+                gl.glTranslated(0, 0, bodyHeight*.80);
+                glut.glutSolidCone(bodyWidthRadius/3, -bodyHeight*.3, slices, stacks);
+                gl.glPopMatrix();
+            } 
         gl.glPopMatrix();
     }
     
@@ -141,7 +176,23 @@ class Bender {
      */
     public void drawLegs(float tAnim){
         gl.glPushMatrix();
-
+            gl.glTranslated(0, 0, -bodyHeight*0.70);
+            int[] t = new int[]{1, -1};
+            for (int i = 0; i < 2; i++) {
+                gl.glPushMatrix();
+                gl.glTranslated((bodyWidth*.3)*t[i], 0, 0);
+                gl.glPushMatrix();
+                gl.glRotated(-7*t[i], 0, 1, 0);
+                glut.glutSolidCylinder(bodyWidthRadius/6, bodyHeight*.9, slices, stacks);
+                gl.glPopMatrix();
+                double[] eqn = {0.0, 0.0, 1.0, 0.0};
+                gl.glClipPlane (GL2.GL_CLIP_PLANE0, eqn,0);
+                gl.glTranslated(0, 0, 0);
+                gl.glEnable (GL2.GL_CLIP_PLANE0);
+                glut.glutSolidSphere(bodyWidthRadius*.4, slices, stacks);
+                gl.glDisable (GL2.GL_CLIP_PLANE0);
+                gl.glPopMatrix();
+            }   
         gl.glPopMatrix();
     }
 }

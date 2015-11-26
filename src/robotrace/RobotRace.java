@@ -44,6 +44,7 @@ public class RobotRace extends Base {
      * Array of the four robots.
      */
     private final Robot[] robots;
+    private final Bender[] benders;
 
     /**
      * Instance of the camera.
@@ -68,6 +69,13 @@ public class RobotRace extends Base {
 
         // Create a new array of four robots
         robots = new Robot[4];
+        
+        // Create bender master race
+        benders = new Bender[4];
+        
+        // Initialize bender 0
+        benders[0] = new Bender(Material.SILVER
+        /* add other parameters that characterize this robot */);
 
         // Initialize robot 0
         robots[0] = new Robot(Material.GOLD
@@ -204,14 +212,15 @@ public class RobotRace extends Base {
         gl.glPushMatrix();
         
         //Move robot away from axis.
-        gl.glTranslatef(0f, 1.0f, 0f);
-        for (int i = 0; i < 4; i++) {
-            //Move robot's next to each other
-            //We know this is not pretty but we will change this in the future.
-            gl.glTranslatef(1.0f, 0f, 0f);
-            //Draw robot
-            robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
-        }
+        gl.glTranslatef(1f, 1.0f, 0f);
+        benders[0].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+//        for (int i = 0; i < 4; i++) {
+//            //Move robot's next to each other
+//            //We know this is not pretty but we will change this in the future.
+//            gl.glTranslatef(1.0f, 0f, 0f);
+//            //Draw robot
+//            robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+//        }
         gl.glPopMatrix();
 
         // Draw the race track.
