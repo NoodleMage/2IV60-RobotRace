@@ -2,6 +2,7 @@ package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_LINE_LOOP;
@@ -54,8 +55,10 @@ class RaceTrack {
             Double N = 75D;            
             int numberOfLanes = 4;
             List points = new ArrayList();
-            List normals = new ArrayList();
-            List offset_points = new ArrayList();
+            List normals;
+            normals = new ArrayList();
+            List<Vector> offset_points = new ArrayList<Vector>();
+            Vector normal = null;
             
               // Compute all points and normals.
             for (int i = 0; i < numberOfLanes; i++) {
@@ -63,7 +66,11 @@ class RaceTrack {
                 for (int j = 0; j < N + 1; j++) {
                     if (i > 0 && j == 0)
                     {
-                        points = offset_points;
+                        points.clear();
+                        offset_points.stream().forEach((v) -> {
+                            points.add(v);
+                        });
+                        //points = offset_points;
                         offset_points.clear();
                     }
                     
@@ -71,6 +78,12 @@ class RaceTrack {
                     
                     //Add point to list of points
                     Vector point = getPoint(t);
+                    
+                    if (i==0)
+                    {
+                    points.add(point);
+                    }
+                    
                     
                     //Get Tangent
                     Vector tangent = getTangent(t);
@@ -82,61 +95,48 @@ class RaceTrack {
                     //y' = xsin(a) + ycos(a)
                     //y' = xsin(-90) + ycos(-90)
                     //y' = -x
-                    Vector normal = new Vector (tangent.y,-tangent.x,tangent.z);
-                    
-                    if (i==0)
-                    {
+                    normal = new Vector (tangent.y,-tangent.x,tangent.z);
+                        
                     normals.add(normal);
-                    points.add(point);
-                    }
-                    //Scale the points over lane width
+                    //Add scaled normal vector to point
                     Vector off = point.add(normal.normalized().scale((laneWidth * (i + 1))));
                     offset_points.add(off);
                 }
-                   drawInnerLine(points,offset_points,N,gl, i);
-                   drawOuterLine(points,N,gl, i);
+                    
+                switch (i) {
+                    case 0:
+                        //Set material determined by given robot type
+                        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.ANDROID.shininess);
+                        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.ANDROID.diffuse, 0);
+                        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.ANDROID.specular, 0);
+                        break;
+                    case 1:
+                        //Set material determined by given robot type
+                        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.GOLD.shininess);
+                        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.GOLD.diffuse, 0);
+                        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.GOLD.specular, 0);
+                        break;
+                    case 2:
+                        //Set material determined by given robot type
+                        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.BLUE.shininess);
+                        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.BLUE.diffuse, 0);
+                        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.BLUE.specular, 0);
+                        break;
+                    case 3:
+                        //Set material determined by given robot type
+                        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.WOOD.shininess);
+                        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.WOOD.diffuse, 0);
+                        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.WOOD.specular, 0);
+                        break;
+                    default:
+                        break;
+                }
+                   
+                    drawCenterLine(points,normals,offset_points,N,gl);
+                   drawInnerLine(points,offset_points,N,gl);
+                   drawOuterLine(points,N,gl);
             }
-//            
-//            
-//        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.SILVER.shininess);
-//        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.SILVER.diffuse, 0);
-//        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.SILVER.specular, 0);
-//             // Draw the sides of the track.
-//            gl.glBegin(GL_QUADS);
-//            for (int i = 0; i < N; i++) {
-//                // Draw inside of the track.
-//                Vector normal = normals.get(i).scale(-1); // use reverse normal
-//                gl.glNormal3d(normal.x(), normal.y(), normal.z());
-//
-//                // Draw quad spanning between two points between minHeight, maxHeight.
-//                Vector point = points.get(i); // point on inside of the track
-//                Vector next_point = points.get(i + 1);
-//                gl.glTexCoord2f(0, 0);
-//                gl.glVertex3d(point.x(), point.y(), point.z());
-//                gl.glTexCoord2f(1, 0);
-//                gl.glVertex3d(next_point.x(), next_point.y(), next_point.z());
-//                gl.glTexCoord2f(1, 1);
-//                gl.glVertex3d(next_point.x(), next_point.y(), minHeight);
-//                gl.glTexCoord2f(0, 1);
-//                gl.glVertex3d(point.x(), point.y(), minHeight);
-//
-//                // Draw outside of the track.
-//                normal = normals.get(i);
-//                gl.glNormal3d(normal.x(), normal.y(), normal.z());
-//                // Draw quad spanning between two points between minHeight, maxHeight.
-//                point = offset_points.get(i); // point on outside of the track
-//                next_point = offset_points.get(i + 1);
-//                gl.glTexCoord2f(0, 0);
-//                gl.glVertex3d(point.x(), point.y(), point.z());
-//                gl.glTexCoord2f(1, 0);
-//                gl.glVertex3d(next_point.x(), next_point.y(), next_point.z());
-//                gl.glTexCoord2f(1, 1);
-//                gl.glVertex3d(next_point.x(), next_point.y(), minHeight);
-//                gl.glTexCoord2f(0, 1);
-//                gl.glVertex3d(point.x(), point.y(), minHeight);
-//            }
-//
-//            gl.glEnd();
+            
 
             // draw the test track
         } else {
@@ -144,9 +144,49 @@ class RaceTrack {
         }
     }
     
-    private void drawOuterLine(List<Vector> points,Double N,GL2 gl, int dippshit)
+    private void drawCenterLine(List<Vector> points,List<Vector> normals, List<Vector> offset_points,Double N,GL2 gl)
     {
-        System.out.println("Draw me like one of your gigolos" + dippshit);
+            int minHeight = -1;
+            gl.glBegin(GL_QUADS);
+            for (int i = 0; i < N; i++) {
+                // Draw inside of the track.
+                Vector normal = normals.get(i).scale(-1); // use reverse normal
+                gl.glNormal3d(normal.x(), normal.y(), normal.z());
+
+                // Draw quad spanning between two points between minHeight, maxHeight.
+                Vector point = points.get(i); // point on inside of the track
+                Vector next_point = points.get(i + 1);
+                gl.glTexCoord2f(0, 0);
+                gl.glVertex3d(point.x(), point.y(), point.z());
+                gl.glTexCoord2f(1, 0);
+                gl.glVertex3d(next_point.x(), next_point.y(), next_point.z());
+                gl.glTexCoord2f(1, 1);
+                gl.glVertex3d(next_point.x(), next_point.y(), minHeight);
+                gl.glTexCoord2f(0, 1);
+                gl.glVertex3d(point.x(), point.y(), minHeight);
+
+                // Draw outside of the track.
+                normal = normals.get(i);
+                gl.glNormal3d(normal.x(), normal.y(), normal.z());
+                // Draw quad spanning between two points between minHeight, maxHeight.
+                point = offset_points.get(i); // point on outside of the track
+                next_point = offset_points.get(i + 1);
+                gl.glTexCoord2f(0, 0);
+                gl.glVertex3d(point.x(), point.y(), point.z());
+                gl.glTexCoord2f(1, 0);
+                gl.glVertex3d(next_point.x(), next_point.y(), next_point.z());
+                gl.glTexCoord2f(1, 1);
+                gl.glVertex3d(next_point.x(), next_point.y(), minHeight);
+                gl.glTexCoord2f(0, 1);
+                gl.glVertex3d(point.x(), point.y(), minHeight);
+            }
+
+            gl.glEnd();
+
+    }
+    
+    private void drawOuterLine(List<Vector> points,Double N,GL2 gl)
+    {
          gl.glBegin(GL_LINE_STRIP);
             // Draw a line on the inside of the track.
             for (int i = 0; i < N + 1; i++) {
@@ -156,14 +196,8 @@ class RaceTrack {
             gl.glEnd();
     }
     
-    private void drawInnerLine(List<Vector> points, List<Vector> offset_points,Double N,GL2 gl, int dippshit)
+    private void drawInnerLine(List<Vector> points, List<Vector> offset_points,Double N,GL2 gl)
     {
-        System.out.println("Draw me like one of your whores" + dippshit);
-        System.out.println(points.get(dippshit).x + offset_points[0].x);
-            //Set material determined by given robot type
-        gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.ANDROID.shininess);
-        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.ANDROID.diffuse, 0);
-        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.ANDROID.specular, 0);
         
             gl.glBegin(GL_QUADS);
             // Draw the top of the track.
