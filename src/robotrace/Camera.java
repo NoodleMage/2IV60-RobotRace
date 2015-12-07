@@ -62,6 +62,14 @@ class Camera {
         double y = radius * Math.sin(theta) * Math.sin(phi);
         double z = radius * Math.cos(phi);
         
+        //System.out.println("The x has value: " + x + "y: " + y + "z:" + z);
+        
+        if (x == 0.0 && y==0.0 && z==10.0)
+        {
+            x+=.01;
+            y+=.01;
+            z+=.01;
+        }
         this.eye = new Vector(x,y,z);
         this.up = Vector.Z;
         this.center = gs.cnt;        
