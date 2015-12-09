@@ -226,7 +226,38 @@ class RaceTrack {
      */
     public Vector getLanePoint(int lane, double t) {
         if (null == controlPoints) {
-            return Vector.O; // <- code goes here
+            Vector point = getPoint(t);
+            //Get Tangent
+            Vector tangent = getTangent(t);
+
+            //Calculate normal by rotation of -90 degrees
+            //x' = xcos(a) - ysin(a)
+            //x' = xcos(-90) - ysin(-90)
+            //x' = 0 - -y = y
+            //y' = xsin(a) + ycos(a)
+            //y' = xsin(-90) + ycos(-90)
+            //y' = -x
+            Vector normal = new Vector (tangent.y,-tangent.x,tangent.z);
+            //Add scaled normal vector to point
+            
+            Vector point2 = null;
+            if (lane != 0)
+            {
+                point2 = point.add(normal.normalized().scale((laneWidth * (lane))));
+            }
+            Vector off = point.add(normal.normalized().scale((laneWidth * (lane + 1))));
+            
+            Vector test;
+            
+            if (lane==0)
+            {
+                test = new Vector ((point.x + off.x)/2,(point.y),point.z);  
+            }
+            else
+            {
+                test = new Vector ((point2.x + off.x)/2,(point2.y),point.z); 
+            }
+            return test;
         } else {
             return Vector.O; // <- code goes here
         }

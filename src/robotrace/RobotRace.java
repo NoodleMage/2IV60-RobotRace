@@ -213,24 +213,25 @@ public class RobotRace extends Base {
             drawAxisFrame();
         }
 
-        // Get the position and direction of the first robot.
-        robots[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
+//         Get the position and direction of the first robot.
+        benders[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
+        benders[1].position = raceTracks[gs.trackNr].getLanePoint(1, 0);
+        benders[2].position = raceTracks[gs.trackNr].getLanePoint(2, 0);
+        benders[3].position = raceTracks[gs.trackNr].getLanePoint(3, 0);
         robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
 
         //Draw robots
         gl.glPushMatrix();
 
-        //Move robot away from axis.
-        gl.glTranslatef(1f, 1.0f, 0f);
-
         for (int i = 0; i < 4; i++) {
             if ("Android".equals(ROBOT_CHOICE)) {
                 robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
             } else if ("Bender".equals(ROBOT_CHOICE)) {
-                benders[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+                    gl.glPushMatrix();
+                    gl.glTranslated(benders[i].position.x,benders[i].position.y,benders[i].position.z);
+                    benders[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+                    gl.glPopMatrix();
             }
-            //We know this is not pretty but we will change this in the future.
-            gl.glTranslatef(1.5f, 0f, 0f);
         }
 
         gl.glPopMatrix();

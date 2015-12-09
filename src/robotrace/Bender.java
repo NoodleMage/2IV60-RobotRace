@@ -32,7 +32,7 @@ class Bender {
     private final int stacks = 30;
     private final int slices = 30;
     private boolean stick;
-    private final double scale = 0.1;
+    private final double scale = 0.05;
     private double bodyWidth;
     private double bodyWidthRadius;
     private double bodyHeight;
