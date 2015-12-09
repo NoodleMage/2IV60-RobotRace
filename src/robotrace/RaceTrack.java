@@ -251,11 +251,11 @@ class RaceTrack {
             
             if (lane==0)
             {
-                test = new Vector ((point.x + off.x)/2,(point.y),point.z);  
+                test = new Vector ((point.x + off.x)/2,((point.y+off.y)/2),point.z);  
             }
             else
             {
-                test = new Vector ((point2.x + off.x)/2,(point2.y),point.z); 
+                test = new Vector ((point2.x + off.x)/2,((point2.y+off.y)/2),point.z); 
             }
             return test;
         } else {
