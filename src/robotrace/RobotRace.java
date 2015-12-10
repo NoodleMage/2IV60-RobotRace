@@ -1,5 +1,6 @@
 package robotrace;
 
+import java.util.Random;
 import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
 import static javax.media.opengl.GL2.*;
@@ -39,6 +40,10 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
  * additional textured primitives to the GLUT object.
  */
 public class RobotRace extends Base {
+
+    private Double step = 0d;
+
+    private Double[] steps = {0.0, 0.0, 0.0, 0.0};
 
     /**
      * Array of the four robots.
@@ -213,11 +218,26 @@ public class RobotRace extends Base {
             drawAxisFrame();
         }
 
+        Double N = 1000d;
+        Double speed = 3d;
+
+        // create array of speeds variations
+        Double[] speeds = new Double[4];
+
+        for (int i = 0; i < 4; i++) {
+            Random rand = new Random();
+            speeds[i] = speed + (rand.nextInt(100) / 10);
+        }
+
 //         Get the position and direction of the first robot.
-        benders[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
-        benders[1].position = raceTracks[gs.trackNr].getLanePoint(1, 0);
-        benders[2].position = raceTracks[gs.trackNr].getLanePoint(2, 0);
-        benders[3].position = raceTracks[gs.trackNr].getLanePoint(3, 0);
+        for (int i = 0; i < 4; i++) {
+            benders[i].position = raceTracks[gs.trackNr].getLanePoint(i, steps[i] / N);
+            steps[i] += speeds[i];
+            if (steps[i] / N >= 1) {
+                steps[i] = 0d;
+            }
+        }
+        
         robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
 
         //Draw robots
@@ -227,10 +247,10 @@ public class RobotRace extends Base {
             if ("Android".equals(ROBOT_CHOICE)) {
                 robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
             } else if ("Bender".equals(ROBOT_CHOICE)) {
-                    gl.glPushMatrix();
-                    gl.glTranslated(benders[i].position.x,benders[i].position.y,benders[i].position.z);
-                    benders[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
-                    gl.glPopMatrix();
+                gl.glPushMatrix();
+                gl.glTranslated(benders[i].position.x, benders[i].position.y, benders[i].position.z);
+                benders[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+                gl.glPopMatrix();
             }
         }
 
