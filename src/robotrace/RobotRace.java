@@ -42,15 +42,18 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 public class RobotRace extends Base {
 
     private Double step = 0d;
+    
+    private int luckCount = 0;
 
     private Double[] steps = {0.0, 0.0, 0.0, 0.0};
+    
+    private Boolean[] hasLuck = {false,false,false,false};
 
     /**
      * Array of the four robots.
      */
+    
     private final Robot[] robots;
-    private final Bender[] benders;
-    private static final String ROBOT_CHOICE = "Bender";
 
     /**
      * Instance of the camera.
@@ -76,36 +79,17 @@ public class RobotRace extends Base {
         // Create a new array of four robots
         robots = new Robot[4];
 
-        // Create bender master race
-        benders = new Bender[4];
-
         // Initialize bender 0
-        benders[0] = new Bender(Material.GOLD, Material.GOLD_ACCENT);
+        robots[0] = new Robot(Material.GOLD, Material.GOLD_ACCENT);
 
         // Initialize bender 1
-        benders[1] = new Bender(Material.SILVER, Material.SILVER_ACCENT);
+        robots[1] = new Robot(Material.SILVER, Material.SILVER_ACCENT);
 
         // Initialize bender 2
-        benders[2] = new Bender(Material.WOOD, Material.WOOD_ACCENT);
+        robots[2] = new Robot(Material.WOOD, Material.WOOD_ACCENT);
 
         // Initialize bender 3
-        benders[3] = new Bender(Material.ORANGE, Material.GOLD_ACCENT);
-
-        // Initialize robot 0
-        robots[0] = new Robot(Material.GOLD
-        /* add other parameters that characterize this robot */);
-
-        // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER
-        /* add other parameters that characterize this robot */);
-
-        // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD
-        /* add other parameters that characterize this robot */);
-
-        // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE
-        /* add other parameters that characterize this robot */);
+        robots[3] = new Robot(Material.ORANGE, Material.GOLD_ACCENT);
 
         // Initialize the camera
         camera = new Camera();
@@ -189,7 +173,19 @@ public class RobotRace extends Base {
 
         // Update the view according to the camera mode and robot of interest.
         // For camera modes 1 to 4, determine which robot to focus on.
-        camera.update(gs, robots[0]);
+        int best = 0;
+        int worst = 0;
+        
+        for (int i = 0; i < 4; i++) {
+            if (steps[i] > steps[best]){
+                best = i;
+            }
+            if (steps[i] < steps[worst]){
+                worst = i;
+            }
+        }
+        
+        camera.update(gs, robots[best],robots[worst]);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
@@ -202,6 +198,7 @@ public class RobotRace extends Base {
      */
     @Override
     public void drawScene() {
+        
         // Background color.
         gl.glClearColor(1f, 1f, 1f, 0f);
 
@@ -218,40 +215,60 @@ public class RobotRace extends Base {
             drawAxisFrame();
         }
 
-        Double N = 1000d;
-        Double speed = 3d;
+        Double N = 10000d;
+        Double speed = 2.0;
 
         // create array of speeds variations
         Double[] speeds = new Double[4];
+//        System.out.println(luckCount);
+        if (luckCount >= 250)
+        {
+            luckCount = 0;
+            for (int i = 0; i < 4; i++) {
+                Random rand = new Random();
+                hasLuck[i] = rand.nextBoolean();
+            }
+        }
 
         for (int i = 0; i < 4; i++) {
-            Random rand = new Random();
-            speeds[i] = speed + (rand.nextInt(100) / 10);
+            if (hasLuck[i])
+            {   
+                Random rand = new Random();
+                speeds[i] = speed + (rand.nextDouble()*4);
+            }
+            else
+            {
+                Random rand = new Random();
+                speeds[i] = speed + rand.nextDouble();
+            }
         }
 
 //         Get the position and direction of the first robot.
         for (int i = 0; i < 4; i++) {
-            benders[i].position = raceTracks[gs.trackNr].getLanePoint(i, steps[i] / N);
+            robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, steps[i] / N);
+            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, steps[i]/N);
+           // System.out.println(raceTracks[gs.trackNr].getLanePoint(i,steps[i]/N).x);
+           // camera.update(gs, robots[i]);
+//           System.out.println("Bot: " + i + " speed: " + steps[i]);
             steps[i] += speeds[i];
+            luckCount++;
             if (steps[i] / N >= 1) {
                 steps[i] = 0d;
             }
         }
         
-        robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
-
+        
         //Draw robots
         gl.glPushMatrix();
 
         for (int i = 0; i < 4; i++) {
-            if ("Android".equals(ROBOT_CHOICE)) {
-                robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
-            } else if ("Bender".equals(ROBOT_CHOICE)) {
                 gl.glPushMatrix();
-                gl.glTranslated(benders[i].position.x, benders[i].position.y, benders[i].position.z);
-                benders[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+                gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
+                double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
+                // Rotate bender to stand perpendicular to lange tangent
+                gl.glRotated(Math.toDegrees(angle)-90, 0, 0, 1);
+                robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
                 gl.glPopMatrix();
-            }
         }
 
         gl.glPopMatrix();

@@ -1,5 +1,7 @@
 package robotrace;
 
+import java.util.Random;
+
 /**
  * Implementation of a camera with a position and orientation. 
  */
@@ -13,34 +15,37 @@ class Camera {
 
     /** The up vector. */
     public Vector up = Vector.Z;
+    
+    private int cameraCount = 0;
+    private int caseCode = 0;
 
     /**
      * Updates the camera viewpoint and direction based on the
      * selected camera mode.
      */
     //public void update(GlobalState gs, Robot focus) {
-    public void update(GlobalState gs, Robot focus) {
+    public void update(GlobalState gs, Robot focusBest, Robot focusWorst) {
 
         switch (gs.camMode) {
             
             // Helicopter mode
             case 1:
-                setHelicopterMode(gs, focus);
+                setHelicopterMode(gs, focusWorst);
                 break;
                 
             // Motor cycle mode    
             case 2:
-                setMotorCycleMode(gs, focus);
+                setMotorCycleMode(gs, focusBest);
                 break;
                 
             // First person mode    
             case 3:
-                setFirstPersonMode(gs, focus);
+                setFirstPersonMode(gs, focusWorst);
                 break;
                 
             // Auto mode    
             case 4:
-                setAutoMode(gs, focus);
+                setAutoMode(gs, focusBest,focusWorst);
                 break;
                 
             // Default mode    
@@ -80,7 +85,14 @@ class Camera {
      * The camera should focus on the robot.
      */
     private void setHelicopterMode(GlobalState gs, Robot focus) {
-        // code goes here ...
+        //System.out.println(focus.position.x + " x");
+        //Set up axis equal to direction of robot
+        this.up = focus.direction;
+        //Set center equal to position of robot
+        this.center = focus.position;
+        //Set eye equal to position of robot with view distance added on up z-axis (hover view).
+        this.eye = focus.position.add(new Vector(0.00001,0.00001,gs.vDist));
+        
     }
 
     /**
@@ -88,7 +100,9 @@ class Camera {
      * The camera should focus on the robot.
      */
     private void setMotorCycleMode(GlobalState gs, Robot focus) {
-        // code goes here ...
+        this.up = Vector.Z;
+        this.center = focus.position;
+        this.eye = focus.direction.cross(new Vector(0,0,1)).normalized();
     }
 
     /**
@@ -96,15 +110,43 @@ class Camera {
      * The camera should view from the perspective of the robot.
      */
     private void setFirstPersonMode(GlobalState gs, Robot focus) {
-        // code goes here ...
+       this.up = Vector.Z;
+       double robot_height = 1; //TODO
+       this.eye = focus.position.add(new Vector(0.0001,0.0001,robot_height + 0.2));
+       this.center = focus.direction;
     }
     
     /**
      * Computes eye, center, and up, based on the auto mode.
      * The above modes are alternated.
      */
-    private void setAutoMode(GlobalState gs, Robot focus) {
-        // code goes here ...
+    private void setAutoMode(GlobalState gs, Robot focusBest, Robot focusWorst) {
+        
+        if (cameraCount % 100 == 0)
+        {
+            cameraCount = 0;
+             Random rand = new Random();
+             caseCode = rand.nextInt(4);
+//             System.out.println(caseCode);
+        }
+        switch (caseCode) {
+            case 0:
+                setDefaultMode(gs);
+                break;
+            case 1:
+                setHelicopterMode(gs,focusBest);
+                break;
+            case 2:
+                setMotorCycleMode(gs,focusBest);
+                break;
+            case 3:
+                setFirstPersonMode(gs,focusWorst);
+                break;
+            default:
+                setDefaultMode(gs);
+                break;
+        }
+        cameraCount++;
     }
 
 }

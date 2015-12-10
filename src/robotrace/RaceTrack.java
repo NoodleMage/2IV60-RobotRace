@@ -269,7 +269,7 @@ class RaceTrack {
      */
     public Vector getLaneTangent(int lane, double t) {
         if (null == controlPoints) {
-            return Vector.O; // <- code goes here
+            return getTangent(t);
         } else {
             return Vector.O; // <- code goes here
         }
