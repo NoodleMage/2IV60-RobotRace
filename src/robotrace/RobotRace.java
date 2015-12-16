@@ -41,20 +41,20 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
  */
 public class RobotRace extends Base {
 
-    private Double step = 0d;
+    private final Double step = 0d;
     
-    private int luckCount = 0;
+    private int luckCount;
 
-    private Double[] steps = {0.0, 0.0, 0.0, 0.0};
+    private final Double[] steps = {0.0, 0.0, 0.0, 0.0};
     
-    private Boolean[] hasLuck = {false,false,false,false};
+    private final Boolean[] hasLuck = {false,false,false,false};
     
-    private static int MOTOR_LANE = 7;
+    private static final int MOTOR_LANE = 7;
     
     private Vector motorPosition;
     
     private Double N = 10000d;
-    private Double speed = 2.0;
+    private final Double speed = 2.0;
 
     /**
      * Array of the four robots.
@@ -82,6 +82,7 @@ public class RobotRace extends Base {
      * terrain.
      */
     public RobotRace() {
+        this.luckCount = 0;
 
         // Create a new array of four robots
         robots = new Robot[4];
