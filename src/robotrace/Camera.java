@@ -24,7 +24,7 @@ class Camera {
      * selected camera mode.
      */
     //public void update(GlobalState gs, Robot focus) {
-    public void update(GlobalState gs, Robot focusBest, Robot focusWorst) {
+    public void update(GlobalState gs, Robot focusBest, Robot focusWorst, Vector motorPosition) {
 
         switch (gs.camMode) {
             
@@ -35,7 +35,7 @@ class Camera {
                 
             // Motor cycle mode    
             case 2:
-                setMotorCycleMode(gs, focusBest);
+                setMotorCycleMode(gs, focusBest,motorPosition);
                 break;
                 
             // First person mode    
@@ -45,7 +45,7 @@ class Camera {
                 
             // Auto mode    
             case 4:
-                setAutoMode(gs, focusBest,focusWorst);
+                setAutoMode(gs, focusBest,focusWorst,motorPosition);
                 break;
                 
             // Default mode    
@@ -99,10 +99,12 @@ class Camera {
      * Computes eye, center, and up, based on the motorcycle mode.
      * The camera should focus on the robot.
      */
-    private void setMotorCycleMode(GlobalState gs, Robot focus) {
+    private void setMotorCycleMode(GlobalState gs, Robot focus, Vector motorPosition) {
         this.up = Vector.Z;
         this.center = focus.position;
-        this.eye = focus.direction.cross(new Vector(0,0,1)).normalized();
+        
+        //Add z unit vector for better view
+        this.eye = motorPosition.add(new Vector(0,0,1));
     }
 
     /**
@@ -120,7 +122,7 @@ class Camera {
      * Computes eye, center, and up, based on the auto mode.
      * The above modes are alternated.
      */
-    private void setAutoMode(GlobalState gs, Robot focusBest, Robot focusWorst) {
+    private void setAutoMode(GlobalState gs, Robot focusBest, Robot focusWorst, Vector motorPosition) {
         
         if (cameraCount % 100 == 0)
         {
@@ -137,7 +139,7 @@ class Camera {
                 setHelicopterMode(gs,focusBest);
                 break;
             case 2:
-                setMotorCycleMode(gs,focusBest);
+                setMotorCycleMode(gs,focusBest,motorPosition);
                 break;
             case 3:
                 setFirstPersonMode(gs,focusWorst);

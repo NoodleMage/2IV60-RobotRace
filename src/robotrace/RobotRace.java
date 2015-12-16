@@ -48,6 +48,13 @@ public class RobotRace extends Base {
     private Double[] steps = {0.0, 0.0, 0.0, 0.0};
     
     private Boolean[] hasLuck = {false,false,false,false};
+    
+    private static int MOTOR_LANE = 7;
+    
+    private Vector motorPosition;
+    
+    private Double N = 10000d;
+    private Double speed = 2.0;
 
     /**
      * Array of the four robots.
@@ -185,7 +192,10 @@ public class RobotRace extends Base {
             }
         }
         
-        camera.update(gs, robots[best],robots[worst]);
+        
+            motorPosition = raceTracks[gs.trackNr].getLanePoint(MOTOR_LANE, steps[best] / N);
+        
+        camera.update(gs, robots[best],robots[worst],motorPosition);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
@@ -214,9 +224,6 @@ public class RobotRace extends Base {
         if (gs.showAxes) {
             drawAxisFrame();
         }
-
-        Double N = 10000d;
-        Double speed = 2.0;
 
         // create array of speeds variations
         Double[] speeds = new Double[4];
