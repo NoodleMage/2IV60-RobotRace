@@ -54,7 +54,7 @@ public class RobotRace extends Base {
     private Vector motorPosition;
     
     private Double N = 10000d;
-    private Double speed = 2.0;
+    private Double speed = 5.0;
 
     /**
      * Array of the four robots.
@@ -108,16 +108,55 @@ public class RobotRace extends Base {
         raceTracks[0] = new RaceTrack();
 
         // O-track
-        raceTracks[1] = new RaceTrack(new Vector[]{ /* add control points like:
-            new Vector(10, 0, 1), new Vector(10, 5, 1), new Vector(5, 10, 1),
-            new Vector(..., ..., ...), ...
-         */});
+        raceTracks[1] = new RaceTrack(new Vector[]   
+                {new Vector(-20, 0, 1),
+                new Vector(-20, 20, 1),
+                new Vector(20, 20, 1),
+                new Vector(20, 0, 1),
+                new Vector(20, -20, 1),
+                new Vector(-20, -20, 1),
+                new Vector(-20, 0, 1)});
 
         // L-track
-        raceTracks[2] = new RaceTrack(new Vector[]{ /* add control points */});
-
+        raceTracks[2] = new RaceTrack(new Vector[]{
+            new Vector(-6,12,1),
+            new Vector(-6,10,1),
+            new Vector(-6,8,1),
+            new Vector(-6,4,1),
+            new Vector(-6,-6,1),
+            new Vector(-4,-10,1),
+            new Vector(0,-10,1),
+            new Vector(6,-10,1),
+            new Vector(10,-10,1),
+            new Vector(14,-10,1),
+            new Vector(20,-10,1),
+            new Vector(20,-20,1),
+            new Vector(14,-20,1),
+            new Vector(8,-20,1),
+            new Vector(0,-20,1),
+            new Vector(-12,-20,1),
+            new Vector(-16,-20,1),
+            new Vector(-20,-16,1),
+            new Vector(-20,-12,1),
+            new Vector(-20,-8,1),
+            new Vector(-20,0,1),
+            new Vector(-20,10,1),
+            new Vector(-20,16,1),
+            new Vector(-16,20,1),
+            new Vector(-10,20,1),
+            new Vector(-6,20,1),
+            new Vector(-6,16,1),
+            new Vector(-6,12,1),
+                });
         // C-track
-        raceTracks[3] = new RaceTrack(new Vector[]{ /* add control points */});
+        raceTracks[3] = new RaceTrack(new Vector[]{  
+                new Vector(-20, 0, 1),
+                new Vector(-20, 20, 1),
+                new Vector(20, 20, 1),
+                new Vector(20, 0, 1),
+                new Vector(20, -20, 1),
+                new Vector(-20, -20, 1),
+                new Vector(-20, 0, 1)});
 
         // Custom track
         raceTracks[4] = new RaceTrack(new Vector[]{ /* add control points */});
@@ -194,7 +233,10 @@ public class RobotRace extends Base {
         
         
             motorPosition = raceTracks[gs.trackNr].getLanePoint(MOTOR_LANE, steps[best] / N);
+            
+            
         
+         
         camera.update(gs, robots[best],robots[worst],motorPosition);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
