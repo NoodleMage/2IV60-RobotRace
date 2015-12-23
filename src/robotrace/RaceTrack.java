@@ -209,7 +209,8 @@ class RaceTrack {
                     //y' = xsin(a) + ycos(a)
                     //y' = xsin(-90) + ycos(-90)
                     //y' = -x
-                    normal = new Vector (tangent.y,-tangent.x,tangent.z);
+                    //normal = new Vector (tangent.y,-tangent.x,tangent.z);
+                    normal = tangent.cross(new Vector(0,0,-1));
                     //Add normal
                     normals.add(normal);
                     
@@ -396,7 +397,7 @@ class RaceTrack {
             //y' = xsin(a) + ycos(a)
             //y' = xsin(-90) + ycos(-90)
             //y' = -x
-            Vector normal = new Vector (tangent.y,-tangent.x,tangent.z);
+            Vector normal = tangent.cross(new Vector(0,0,-1));
             //Add scaled normal vector to point
             
             Vector point2 = new Vector(0,0,0);
