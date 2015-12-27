@@ -117,7 +117,7 @@ class RaceTrack {
                     Vector tangent = getTangent(t);
 
                     //Calculate normal by cross with negative z-axis
-                    normal = tangent.cross(new Vector(0, 0, -1));
+                    normal = tangent.cross(new Vector(0, 0, 1));
 
                     //Add normal to list of normals
                     normals.add(normal);
@@ -166,7 +166,7 @@ class RaceTrack {
                         Vector tangent = getCubicBezierTangent(t, controlPoints[k], controlPoints[k + 1], controlPoints[k + 2], controlPoints[k + 3]);
 
                         //Calculate normal by cross with z-axis
-                        normal = tangent.cross(new Vector(0, 0, 1));
+                        normal = tangent.cross(new Vector(0, 0, -1));
                         //Add normal
                         normals.add(normal);
 
@@ -302,7 +302,7 @@ class RaceTrack {
             Vector tangent = getTangent(t);
 
             //Calculate normal by cross with negative z-axis
-            Vector normal = tangent.cross(new Vector(0, 0, -1));
+            Vector normal = tangent.cross(new Vector(0, 0, 1));
             //Add scaled normal vector to point
 
             return getPointOnLane(lane, point, normal);
@@ -312,7 +312,7 @@ class RaceTrack {
             Vector tangent = getLaneBezier(t, true);
 
             //Calculate normal by cross with z-axis
-            Vector normal = tangent.cross(new Vector(0, 0, 1));
+            Vector normal = tangent.cross(new Vector(0, 0, -1));
             //Add scaled normal vector to point
             return getPointOnLane(lane, point, normal);
 

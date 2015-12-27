@@ -42,24 +42,23 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 public class RobotRace extends Base {
 
     private Double step = 0d;
-    
+
     private int luckCount = 0;
 
     private Double[] steps = {0.0, 0.0, 0.0, 0.0};
-    
-    private Boolean[] hasLuck = {false,false,false,false};
-    
+
+    private Boolean[] hasLuck = {false, false, false, false};
+
     private static int MOTOR_LANE = 7;
-    
+
     private Vector motorPosition;
-    
+
     private Double N = 10000d;
     private Double speed = 5.0;
 
     /**
      * Array of the four robots.
      */
-    
     private final Robot[] robots;
 
     /**
@@ -108,67 +107,94 @@ public class RobotRace extends Base {
         raceTracks[0] = new RaceTrack();
 
         // O-track
-        raceTracks[1] = new RaceTrack(new Vector[]   
-                {new Vector(-15, 0, 1),
-                new Vector(-15, 15, 1),
-                new Vector(15, 15, 1),
-                new Vector(15, 0, 1),
-                new Vector(15, -15, 1),
-                new Vector(-15, -15, 1),
-                new Vector(-15, 0, 1)});
+        raceTracks[1] = new RaceTrack(new Vector[]{new Vector(-15, 0, 1),
+            new Vector(-15, 15, 1),
+            new Vector(15, 15, 1),
+            new Vector(15, 0, 1),
+            new Vector(15, -15, 1),
+            new Vector(-15, -15, 1),
+            new Vector(-15, 0, 1)});
 
         // L-track
         raceTracks[2] = new RaceTrack(new Vector[]{
-            new Vector(-6,12,1),
-            new Vector(-6,10,1),
-            new Vector(-6,8,1),
-            new Vector(-6,4,1),
-            new Vector(-6,-6,1),
-            new Vector(-4,-10,1),
-            new Vector(0,-10,1),
-            new Vector(6,-10,1),
-            new Vector(10,-10,1),
-            new Vector(14,-10,1),
-            new Vector(20,-10,1),
-            new Vector(20,-20,1),
-            new Vector(14,-20,1),
-            new Vector(8,-20,1),
-            new Vector(0,-20,1),
-            new Vector(-12,-20,1),
-            new Vector(-16,-20,1),
-            new Vector(-20,-16,1),
-            new Vector(-20,-12,1),
-            new Vector(-20,-8,1),
-            new Vector(-20,0,1),
-            new Vector(-20,10,1),
-            new Vector(-20,16,1),
-            new Vector(-16,20,1),
-            new Vector(-10,20,1),
-            new Vector(-6,20,1),
-            new Vector(-6,16,1),
-            new Vector(-6,12,1),
-                });
+            new Vector(4, 11, 1),
+            new Vector(4, 10, 1),
+            new Vector(4, 9, 1),
+            new Vector(4, 7, 1),
+            new Vector(4, 2, 1),
+            new Vector(5, 0, 1),
+            new Vector(13, 0, 1),
+            new Vector(16, 0, 1),
+            new Vector(18, 0, 1),
+            new Vector(20, 0, 1),
+            new Vector(23, 0, 1),
+            new Vector(23, -5, 1),
+            new Vector(20, -5, 2),
+            new Vector(17, -5, 2),
+            new Vector(10, -5, 1),
+            new Vector(1, -5, 1),
+            new Vector(-1, -5, 1),
+            new Vector(-3, -3, 1),
+            new Vector(-3, -1, 1),
+            new Vector(-3, 1, 1),
+            new Vector(-3, 5, 1),
+            new Vector(-3, 10, 1),
+            new Vector(-3, 13, 1),
+            new Vector(-1, 15, 1),
+            new Vector(2, 15, 1),
+            new Vector(4, 15, 1),
+            new Vector(4, 12, 1),
+            new Vector(4, 11, 1),});
         // C-track
-        raceTracks[3] = new RaceTrack(new Vector[]{  
-            new Vector(0, 20, 1),
-            new Vector(10, 18, 1),
-            new Vector(10, 12, 1),
-            new Vector(0, 8, 1),
-            new Vector(-6, 6, 1),
-            new Vector(-8, 4, 1),
-            new Vector(-8, 0, 1),
-            new Vector(-8, -4, 1),
-            new Vector(-6, -6, 1),
-            new Vector(0, -8, 1),
+        raceTracks[3] = new RaceTrack(new Vector[]{
+            new Vector(-10, 20, 1),
+            new Vector(0, 30, 1),
+            new Vector(20, 30, 1),
+            new Vector(30, 20, 1),
+            new Vector(32, 18, 1),
+            new Vector(32, 12, 1),
+            new Vector(30, 10, 1),
+            new Vector(25, 5, 1),
+            new Vector(15, 15, 1),
+            new Vector(10, 10, 1),
+            new Vector(5, 5, 1),
+            new Vector(5, -5, 1),
             new Vector(10, -10, 1),
-            new Vector(10, -16, 1),
-            new Vector(0, -20, 1),
-            new Vector(-30, -8, 1),
-            new Vector(-30, 8, 1),
-            new Vector(0, 20, 1)});
+            new Vector(15, -15, 1),
+            new Vector(25, -5, 1),
+            new Vector(30, -10, 1),
+            new Vector(32, -12, 1),
+            new Vector(32, -18, 1),
+            new Vector(30, -20, 1),
+            new Vector(20, -30, 1),
+            new Vector(0, -30, 1),
+            new Vector(-10, -20, 1),
+            new Vector(-20, -10, 1),
+            new Vector(-20, 10, 1),
+            new Vector(-10, 20, 1),
+            });
 
         // Custom track
-        raceTracks[4] = new RaceTrack(new Vector[]{ /* add control points */});
+        raceTracks[4] = new RaceTrack(new Vector[]{
+            new Vector(-20, 0, 1),
+            new Vector(-28, 8, 1),
+            new Vector(-24, 10, 1),
+            new Vector(-16, 4, 1),
+            new Vector(-12, -2, 1),
+            new Vector(-10, 2, 1),
+            new Vector(-14, 10, 1),
+            new Vector(-16, 16, 1),
+            new Vector(-12, 16, 1),
+            new Vector(-10, 10, 1),
+            new Vector(-6, 4, 1),
+            new Vector(-4, 6, 1),
+            new Vector(-5, 14, 1),
+            new Vector(-5, 20, 1),
+            new Vector(5, 20, 1),
+            new Vector(5, 10, 1),
+            new Vector(5, -10, 1),
+            new Vector(-10, 10, 1),
+            new Vector(-0, 0, 1),});
 
         // Initialize the terrain
         terrain = new Terrain();
@@ -230,23 +256,19 @@ public class RobotRace extends Base {
         // For camera modes 1 to 4, determine which robot to focus on.
         int best = 0;
         int worst = 0;
-        
+
         for (int i = 0; i < 4; i++) {
-            if (steps[i] > steps[best]){
+            if (steps[i] > steps[best]) {
                 best = i;
             }
-            if (steps[i] < steps[worst]){
+            if (steps[i] < steps[worst]) {
                 worst = i;
             }
         }
-        
-        
-            motorPosition = raceTracks[gs.trackNr].getLanePoint(MOTOR_LANE, steps[best] / N);
-            
-            
-        
-         
-        camera.update(gs, robots[best],robots[worst],motorPosition);
+
+        motorPosition = raceTracks[gs.trackNr].getLanePoint(MOTOR_LANE, steps[best] / N);
+
+        camera.update(gs, robots[best], robots[worst], motorPosition);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
@@ -259,7 +281,7 @@ public class RobotRace extends Base {
      */
     @Override
     public void drawScene() {
-        
+
         // Background color.
         gl.glClearColor(1f, 1f, 1f, 0f);
 
@@ -279,8 +301,7 @@ public class RobotRace extends Base {
         // create array of speeds variations
         Double[] speeds = new Double[4];
 //        System.out.println(luckCount);
-        if (luckCount >= 250)
-        {
+        if (luckCount >= 250) {
             luckCount = 0;
             for (int i = 0; i < 4; i++) {
                 Random rand = new Random();
@@ -289,13 +310,10 @@ public class RobotRace extends Base {
         }
 
         for (int i = 0; i < 4; i++) {
-            if (hasLuck[i])
-            {   
+            if (hasLuck[i]) {
                 Random rand = new Random();
-                speeds[i] = speed + (rand.nextDouble()*4);
-            }
-            else
-            {
+                speeds[i] = speed + (rand.nextDouble() * 4);
+            } else {
                 Random rand = new Random();
                 speeds[i] = speed + rand.nextDouble();
             }
@@ -304,9 +322,9 @@ public class RobotRace extends Base {
 //         Get the position and direction of the first robot.
         for (int i = 0; i < 4; i++) {
             robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, steps[i] / N);
-            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, steps[i]/N);
-           // System.out.println(raceTracks[gs.trackNr].getLanePoint(i,steps[i]/N).x);
-           // camera.update(gs, robots[i]);
+            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, steps[i] / N);
+            // System.out.println(raceTracks[gs.trackNr].getLanePoint(i,steps[i]/N).x);
+            // camera.update(gs, robots[i]);
 //           System.out.println("Bot: " + i + " speed: " + steps[i]);
             steps[i] += speeds[i];
             luckCount++;
@@ -314,19 +332,18 @@ public class RobotRace extends Base {
                 steps[i] = 0d;
             }
         }
-        
-        
+
         //Draw robots
         gl.glPushMatrix();
 
         for (int i = 0; i < 4; i++) {
-                gl.glPushMatrix();
-                gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
-                double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
-                // Rotate bender to stand perpendicular to lange tangent
-                gl.glRotated(Math.toDegrees(angle)-90, 0, 0, 1);
-                robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
-                gl.glPopMatrix();
+            gl.glPushMatrix();
+            gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
+            double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
+            // Rotate bender to stand perpendicular to lange tangent
+            gl.glRotated(Math.toDegrees(angle) - 90, 0, 0, 1);
+            robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+            gl.glPopMatrix();
         }
 
         gl.glPopMatrix();
