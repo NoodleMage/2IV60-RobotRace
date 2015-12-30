@@ -349,7 +349,7 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
 
         // Draw the race track.
-        raceTracks[gs.trackNr].draw(gl, glu, glut);
+        raceTracks[gs.trackNr].draw(gl, glu, glut,track,brick);
 
         // Draw the terrain.
         terrain.draw(gl, glu, glut);

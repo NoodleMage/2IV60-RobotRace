@@ -1,6 +1,7 @@
 package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
+import com.jogamp.opengl.util.texture.Texture;
 import java.util.ArrayList;
 import java.util.List;
 import static javax.media.opengl.GL.GL_FRONT;
@@ -72,7 +73,7 @@ class RaceTrack {
     /**
      * Draws this track, based on the control points.
      */
-    public void draw(GL2 gl, GLU glu, GLUT glut) {
+    public void draw(GL2 gl, GLU glu, GLUT glut, Texture track,Texture brick) {
         //Initialize arraylist of points
         points = new ArrayList();
         //Initialize arraylist of normal
@@ -131,7 +132,7 @@ class RaceTrack {
                 setLaneColors(i, gl);
 
                 //Draw the test track
-                drawTrack(points, normals, offset_points, N, gl);
+                drawTrack(points, normals, offset_points, N, gl,track,brick);
 
             }
         } else {
@@ -180,7 +181,7 @@ class RaceTrack {
                     //Set the lane colors
                     setLaneColors(i, gl);
                     //Draw track
-                    drawTrack(points, normals, offset_points, N, gl);
+                    drawTrack(points, normals, offset_points, N, gl,track,brick);
                 }
                 points.clear();
                 normals.clear();
@@ -222,14 +223,21 @@ class RaceTrack {
 
     }
 
-    private void drawTrack(List<Vector> points, List<Vector> normals, List<Vector> offset_points, Double N, GL2 gl) {
+    private void drawTrack(List<Vector> points, List<Vector> normals, List<Vector> offset_points, Double N, GL2 gl, Texture track, Texture brick) {
+        // Start using track texture.
+       track.enable(gl);
+       track.bind(gl);
         //Draw the sides of the lane
-        drawTrakLane(points, normals, offset_points, N, gl);
+        drawTrackLane(points, offset_points, N, gl);
+        track.disable(gl);
         //Draw the flat top race track
-        drawTestSides(points, offset_points, N, gl);
+        brick.enable(gl);
+        brick.bind(gl);
+        drawTrakSides(points, normals, offset_points, N, gl);
+        brick.disable(gl);
     }
 
-    private void drawTrakLane(List<Vector> points, List<Vector> normals, List<Vector> offset_points, Double N, GL2 gl) {
+    private void drawTrakSides(List<Vector> points, List<Vector> normals, List<Vector> offset_points, Double N, GL2 gl) {
         gl.glBegin(GL_QUADS);
         for (int i = 0; i < N; i++) {
             // Draw inside of the track.
@@ -268,7 +276,7 @@ class RaceTrack {
 
     }
 
-    private void drawTestSides(List<Vector> points, List<Vector> offset_points, Double N, GL2 gl) {
+    private void drawTrackLane(List<Vector> points, List<Vector> offset_points, Double N, GL2 gl) {
         //Draw Quads
         gl.glBegin(GL_QUADS);
         // Draw the top of the track.
