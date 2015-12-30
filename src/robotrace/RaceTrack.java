@@ -35,17 +35,17 @@ class RaceTrack {
     /**
      * TODO*
      */
-    private List<Vector> normals;
-
-    /**
-     * TODO*
-     */
     private final static Double N = 200D;
 
     /**
      * TODO*
      */
     private List<Vector> offset_points;
+    
+     /**
+     * TODO*
+     */
+    private List<Vector> normals;
 
     /**
      * TODO*
@@ -73,13 +73,19 @@ class RaceTrack {
     /**
      * Draws this track, based on the control points.
      */
-    public void draw(GL2 gl, GLU glu, GLUT glut, Texture track,Texture brick) {
+    public void draw(GL2 gl, GLU glu, GLUT glut, Texture track, Texture brick, Texture finish) {
+        Vector finishPoint = null;
+        Vector finishOff = null;
+        Vector finishPointNext = null;
+        Vector finishOffNext = null;
+
         //Initialize arraylist of points
         points = new ArrayList();
-        //Initialize arraylist of normal
-        normals = new ArrayList();
         //Initialize arraylist of offset_points;
         offset_points = new ArrayList<>();
+        
+        //Initialize arraylist of normals
+        normals = new ArrayList<>();
 
         Vector normal;
         if (null == controlPoints) {
@@ -119,20 +125,28 @@ class RaceTrack {
 
                     //Calculate normal by cross with negative z-axis
                     normal = tangent.cross(new Vector(0, 0, 1));
-
-                    //Add normal to list of normals
                     normals.add(normal);
 
+                    //Add normal to list of normals
                     //Add unit normal vector to point and scale to lane width
                     Vector off = point.add(normal.normalized().scale((LANE_WIDTH * (i + 1))));
                     //Add offset point
                     offset_points.add(off);
+
+                    if (j == 0 && i == 0) {
+                        finishPoint = point;
+                        finishOff = point.add(normal.normalized().scale((LANE_WIDTH * (NUMBER_OF_LANES))));
+                    }
+                    if (j == 5 && i == 0) {
+                        finishPointNext = point;
+                        finishOffNext = point.add(normal.normalized().scale((LANE_WIDTH * (NUMBER_OF_LANES))));
+                    }
                 }
                 //set lane colors
                 setLaneColors(i, gl);
 
                 //Draw the test track
-                drawTrack(points, normals, offset_points, N, gl,track,brick);
+                drawTrack(points, offset_points, N, gl, track, brick);
 
             }
         } else {
@@ -168,54 +182,50 @@ class RaceTrack {
 
                         //Calculate normal by cross with z-axis
                         normal = tangent.cross(new Vector(0, 0, -1));
-                        //Add normal
                         normals.add(normal);
-
+                        
                         //Add unit normal vector to point and scale to lane width
                         Vector off = point.add(normal.normalized().scale((LANE_WIDTH * (i + 1))));
 
                         //Add offset point
                         offset_points.add(off);
+
+                        if (j == 0 && i == 0 && k == 0) {
+                            finishPoint = point;
+                            finishOff = finishPoint.add(normal.normalized().scale(LANE_WIDTH * NUMBER_OF_LANES));
+                        }
+                        if (j == (controlPoints.length / 3) * 5 && i == 0 & k == 0) {
+                            finishPointNext = point;
+                            finishOffNext = finishPointNext.add(normal.normalized().scale(LANE_WIDTH * NUMBER_OF_LANES));
+                        }
                     }
 
                     //Set the lane colors
                     setLaneColors(i, gl);
                     //Draw track
-                    drawTrack(points, normals, offset_points, N, gl,track,brick);
+                    drawTrack(points, offset_points, N, gl, track, brick);
                 }
                 points.clear();
-                normals.clear();
                 offset_points.clear();
             }
 
         }
+        drawFinish(gl, finish, finishPoint, finishOff, finishPointNext, finishOffNext);
     }
 
     private void setLaneColors(int lane_number, GL2 gl) {
         switch (lane_number) {
             case 0:
-                //Set material determined by given robot type
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.RED.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.RED.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.RED.specular, 0);
+                setMaterial(Material.RED, gl);
                 break;
             case 1:
-                //Set material determined by given robot type
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.GREEN.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.GREEN.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.GREEN.specular, 0);
+                setMaterial(Material.GREEN, gl);
                 break;
             case 2:
-                //Set material determined by given robot type
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.BLUE.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.BLUE.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.BLUE.specular, 0);
+                setMaterial(Material.BLUE, gl);
                 break;
             case 3:
-                //Set material determined by given robot type
-                gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.YELLOW.shininess);
-                gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.YELLOW.diffuse, 0);
-                gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.YELLOW.specular, 0);
+                setMaterial(Material.YELLOW, gl);
                 break;
             default:
                 break;
@@ -223,80 +233,111 @@ class RaceTrack {
 
     }
 
-    private void drawTrack(List<Vector> points, List<Vector> normals, List<Vector> offset_points, Double N, GL2 gl, Texture track, Texture brick) {
+    private void drawTrack(List<Vector> points, List<Vector> offset_points, Double N, GL2 gl, Texture track, Texture brick) {
         // Start using track texture.
-       track.enable(gl);
-       track.bind(gl);
+        track.enable(gl);
+        track.bind(gl);
         //Draw the sides of the lane
         drawTrackLane(points, offset_points, N, gl);
         track.disable(gl);
         //Draw the flat top race track
         brick.enable(gl);
         brick.bind(gl);
-        drawTrakSides(points, normals, offset_points, N, gl);
+        drawTrakSides(points, offset_points, normals, N, gl);
         brick.disable(gl);
     }
 
-    private void drawTrakSides(List<Vector> points, List<Vector> normals, List<Vector> offset_points, Double N, GL2 gl) {
-        gl.glBegin(GL_QUADS);
+    private void drawTrakSides(List<Vector> points, List<Vector> offset_points, List<Vector> normals, Double N, GL2 gl) {
+        // 2D array to store the line translations
+        int[][] coordinates2d = new int[][]{
+            {0, 0},
+            {1, 0},
+            {1, 1},
+            {0, 1},
+            {0, 0},
+            {1, 0},
+            {1, 1},
+            {0, 1}};
+
+            gl.glBegin(GL_QUADS);
         for (int i = 0; i < N; i++) {
-            // Draw inside of the track.
-            Vector normal = normals.get(i); 
-            gl.glNormal3d(normal.x(), normal.y(), normal.z());
+            double[][] coordinates3d = new double[][]{
+                {points.get(i).x, points.get(i).y, points.get(i).z},
+                {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z},
+                {points.get(i + 1).x, points.get(i + 1).y, MIN_HEIGHT},
+                {points.get(i).x, points.get(i).y, MIN_HEIGHT},
+                {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z},
+                {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z},
+                {offset_points.get(i + 1).x, offset_points.get(i + 1).y, MIN_HEIGHT},
+                {offset_points.get(i).x, offset_points.get(i).y, MIN_HEIGHT}};
 
-            // Draw quad spanning between two points between minHeight, maxHeight.
-            Vector point = points.get(i); // point on inside of the track
-            Vector next_point = points.get(i + 1);
-            gl.glTexCoord2f(0, 0);
-            gl.glVertex3d(point.x(), point.y(), point.z());
-            gl.glTexCoord2f(1, 0);
-            gl.glVertex3d(next_point.x(), next_point.y(), next_point.z());
-            gl.glTexCoord2f(1, 1);
-            gl.glVertex3d(next_point.x(), next_point.y(), MIN_HEIGHT);
-            gl.glTexCoord2f(0, 1);
-            gl.glVertex3d(point.x(), point.y(), MIN_HEIGHT);
-
-            // Draw outside of the track.
-            normal = normals.get(i);
-            gl.glNormal3d(normal.x(), normal.y(), normal.z());
-            // Draw quad spanning between two points between minHeight, maxHeight.
-            point = offset_points.get(i); // point on outside of the track
-            next_point = offset_points.get(i + 1);
-            gl.glTexCoord2f(0, 0);
-            gl.glVertex3d(point.x(), point.y(), point.z());
-            gl.glTexCoord2f(1, 0);
-            gl.glVertex3d(next_point.x(), next_point.y(), next_point.z());
-            gl.glTexCoord2f(1, 1);
-            gl.glVertex3d(next_point.x(), next_point.y(), MIN_HEIGHT);
-            gl.glTexCoord2f(0, 1);
-            gl.glVertex3d(point.x(), point.y(), MIN_HEIGHT);
+            
+            gl.glNormal3d(normals.get(i).x, normals.get(i).y, normals.get(i).z); // upwards pointing normal equal to normal
+            for (int j = 0; j < coordinates2d.length; j++) {
+                gl.glTexCoord2f(coordinates2d[j][0], coordinates2d[j][1]);
+                gl.glVertex3d(coordinates3d[j][0], coordinates3d[j][1], coordinates3d[j][2]);
+            }
+           
         }
-
-        gl.glEnd();
+         gl.glEnd();
 
     }
 
     private void drawTrackLane(List<Vector> points, List<Vector> offset_points, Double N, GL2 gl) {
-        //Draw Quads
-        gl.glBegin(GL_QUADS);
+        // 2D array to store the line translations
+        int[][] coordinates2d = new int[][]{
+            {0, 0},
+            {1, 0},
+            {1, 1},
+            {0, 1}};
+
         // Draw the top of the track.
+        gl.glBegin(GL_QUADS);
         for (int i = 0; i < N; i++) {
-            Vector point = points.get(i); // point on the inside
-            Vector off = offset_points.get(i); // point on the outside
-            Vector next_point = points.get(i + 1); // next point on the inside
-            Vector next_off = offset_points.get(i + 1); // next point on the outside
+            double[][] coordinates3d = new double[][]{
+                {points.get(i).x, points.get(i).y, points.get(i).z},
+                {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z},
+                {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z},
+                {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z}};
 
             gl.glNormal3d(0, 0, 1); // upwards pointing normal equal to z axis
-            gl.glTexCoord2f(0, 0);
-            gl.glVertex3d(point.x(), point.y(), point.z());
-            gl.glTexCoord2f(1, 0);
-            gl.glVertex3d(off.x(), off.y(), off.z());
-            gl.glTexCoord2f(1, 1);
-            gl.glVertex3d(next_off.x(), next_off.y(), next_off.z());
-            gl.glTexCoord2f(0, 1);
-            gl.glVertex3d(next_point.x(), next_point.y(), next_point.z());
+            for (int j = 0; j < coordinates2d.length; j++) {
+                gl.glTexCoord2f(coordinates2d[j][0], coordinates2d[j][1]);
+                gl.glVertex3d(coordinates3d[j][0], coordinates3d[j][1], coordinates3d[j][2]);
+            }
+        }
+         gl.glEnd();
+    }
+
+    private void drawFinish(GL2 gl, Texture finish, Vector point, Vector off, Vector point_next, Vector off_next) {
+        //Set material to white
+        setMaterial(Material.WHITE, gl);
+
+        //Map finish texture
+        finish.enable(gl);
+        finish.bind(gl);
+
+        // 2D array to store the line translations
+        int[][] coordinates2d = new int[][]{
+            {0, 0},
+            {1, 0},
+            {1, 1},
+            {0, 1}};
+
+        double[][] coordinates3d = new double[][]{
+            {point.x, point.y, point.z + 0.05},
+            {off.x, point.y, off.z + 0.05},
+            {off_next.x, point_next.y, off_next.z + 0.05},
+            {point_next.x, point_next.y, point_next.z + 0.05}};
+
+        gl.glBegin(GL_QUADS);
+        for (int i = 0; i < coordinates2d.length; i++) {
+            gl.glTexCoord2f(coordinates2d[i][0], coordinates2d[i][1]);
+            gl.glVertex3d(coordinates3d[i][0], coordinates3d[i][1], coordinates3d[i][2]);
         }
         gl.glEnd();
+
+        finish.disable(gl);
     }
 
     /**
@@ -432,5 +473,12 @@ class RaceTrack {
         Double z = 3 * Math.pow(1 - t, 2) * (P1.z - P0.z) + 6 * (1 - t) * t * (P2.z - P1.z) + 3 * Math.pow(t, 2) * (P3.z - P2.z);
 
         return new Vector(x, y, z);
+    }
+
+    private void setMaterial(Material material, GL2 gl) {
+        //Set material determined by given robot type
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, material.diffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
     }
 }

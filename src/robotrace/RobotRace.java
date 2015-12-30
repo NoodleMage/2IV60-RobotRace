@@ -1,5 +1,6 @@
 package robotrace;
 
+import com.jogamp.opengl.util.texture.Texture;
 import java.util.Random;
 import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
@@ -55,6 +56,8 @@ public class RobotRace extends Base {
 
     private Double N = 10000d;
     private Double speed = 5.0;
+    
+    private Texture finish;
 
     /**
      * Array of the four robots.
@@ -228,6 +231,7 @@ public class RobotRace extends Base {
         brick = loadTexture("brick.jpg");
         head = loadTexture("head.jpg");
         torso = loadTexture("torso.jpg");
+        finish = loadTexture("finish.jpg");
     }
 
     /**
@@ -349,7 +353,7 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
 
         // Draw the race track.
-        raceTracks[gs.trackNr].draw(gl, glu, glut,track,brick);
+        raceTracks[gs.trackNr].draw(gl, glu, glut,track,brick,finish);
 
         // Draw the terrain.
         terrain.draw(gl, glu, glut);
