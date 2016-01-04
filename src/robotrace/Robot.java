@@ -44,7 +44,7 @@ class Robot {
     private final double bodyHeight = 11;
 
     /**
-     * New declaration for parametrisation update
+     * New declaration for parameterization update
      */
     private final Head head = new Head();
     private final Body body = new Body();
@@ -68,6 +68,9 @@ class Robot {
     public void draw(GL2 gl1, GLU glu1, GLUT glut1, boolean stickFigure, float tAnim) {
 
         BodyPart[] parts = new BodyPart[]{head, body, armL, armR, legL, legR};
+        
+        // tAnim is blijkbaar een timer, die kunnen we gebruiken voor onze steps en animaties dus!!!!!!!
+        //System.out.println(tAnim);
 
         this.gl = gl1;
         this.glut = glut1;

@@ -6,12 +6,14 @@
 package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
+import static java.lang.Math.abs;
 import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import javax.media.opengl.glu.GLU;
+import static java.lang.Math.abs;
 
 /**
  *
@@ -37,6 +39,8 @@ public abstract class BodyPart {
     public GLUT glut;
 
     public float tAnim;
+    //public float ticker = 0;
+    //int step = 5;
 
     public void Draw() {
     }
@@ -144,13 +148,32 @@ class Body extends BodyPart {
 class Arm extends BodyPart {
 
     int side;
+    int upperAnim = 0;
+    int lowerAnim = 0;
+    
+    int upperstep;
+    int lowerstep;
 
     public Arm(int s) {
         side = s;
+        upperstep = 5 * s;
+        lowerstep = 5;
     }
 
     @Override
     public void Draw() {
+        // Step up the animation tickers
+        upperAnim += upperstep;
+        lowerAnim += lowerstep * 1;    
+        
+        if (abs(upperAnim) == 80 && upperAnim >= 0 || upperAnim < 0 && abs(upperAnim) == 30) {
+            upperstep = upperstep * -1;
+        }
+        
+        if (lowerAnim == 80 || lowerAnim == 0) {
+            lowerstep = lowerstep * -1;
+        }
+        
         gl.glPushMatrix();
         //Translate for correct position on body
         gl.glTranslated(0, 0, this.lenght * .9);
@@ -162,11 +185,20 @@ class Arm extends BodyPart {
         gl.glTranslated((this.width * .5) * side, 0, 0);
         //Rotate arm
         gl.glRotated(170 * side, 0, 1, 0);
-        //Draw arm
+        gl.glRotated(-upperAnim, 1, 0, 0);
+        //Draw shoulder
         glut.glutSolidSphere(this.bodyWidthRadius / 6, slices, stacks);
-        glut.glutSolidCylinder(this.bodyWidthRadius / 6, this.lenght * .75, slices, stacks);
+        // Draw upper arm
+        //glut.glutSolidCylinder(this.bodyWidthRadius / 6, this.lenght * .75, slices, stacks);
+        glut.glutSolidCylinder(this.bodyWidthRadius / 6, (this.lenght * .75)/2, slices, stacks);
+        // Draw elbow joint
+        gl.glTranslated(0, 0, (this.lenght * .75)/2);
+        glut.glutSolidSphere(this.bodyWidthRadius / 6, slices, stacks);
+        // Draw lower arm
+        //gl.glRotated(-lowerAnim, 1, 0, 0);
+        glut.glutSolidCylinder(this.bodyWidthRadius / 6, (this.lenght * .75)/2, slices, stacks);
         //Translate for hand position
-        gl.glTranslated(0, 0, this.lenght * .80);
+        gl.glTranslated(0, 0, (this.lenght * .80)/2);
 
         //Set original color
         setMaterial(this.material);
