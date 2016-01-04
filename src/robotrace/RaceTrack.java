@@ -264,12 +264,12 @@ class RaceTrack {
             double[][] coordinates3d = new double[][]{
                 {points.get(i).x, points.get(i).y, points.get(i).z},
                 {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z},
-                {points.get(i + 1).x, points.get(i + 1).y, MIN_HEIGHT},
-                {points.get(i).x, points.get(i).y, MIN_HEIGHT},
+                {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z - 2},
+                {points.get(i).x, points.get(i).y, points.get(i).z - 2},
                 {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z},
                 {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z},
-                {offset_points.get(i + 1).x, offset_points.get(i + 1).y, MIN_HEIGHT},
-                {offset_points.get(i).x, offset_points.get(i).y, MIN_HEIGHT}};
+                {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z - 2},
+                {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z - 2}};
 
             
             gl.glNormal3d(normals.get(i).x, normals.get(i).y, normals.get(i).z); // upwards pointing normal equal to normal
@@ -299,6 +299,23 @@ class RaceTrack {
                 {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z},
                 {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z},
                 {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z}};
+
+            gl.glNormal3d(0, 0, 1); // upwards pointing normal equal to z axis
+            for (int j = 0; j < coordinates2d.length; j++) {
+                gl.glTexCoord2f(coordinates2d[j][0], coordinates2d[j][1]);
+                gl.glVertex3d(coordinates3d[j][0], coordinates3d[j][1], coordinates3d[j][2]);
+            }
+        }
+         gl.glEnd();
+         
+         // Draw the bottom of the track.
+        gl.glBegin(GL_QUADS);
+        for (int i = 0; i < N; i++) {
+            double[][] coordinates3d = new double[][]{
+                {points.get(i).x, points.get(i).y, points.get(i).z - 2},
+                {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z - 2},
+                {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z - 2},
+                {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z - 2}};
 
             gl.glNormal3d(0, 0, 1); // upwards pointing normal equal to z axis
             for (int j = 0; j < coordinates2d.length; j++) {

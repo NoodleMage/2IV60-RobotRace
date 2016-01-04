@@ -55,8 +55,8 @@ public class RobotRace extends Base {
     private Vector motorPosition;
 
     private Double N = 10000d;
-    private Double speed = 5.0;
-    
+    private Double speed = 0.0;
+
     private Texture finish;
 
     /**
@@ -150,54 +150,47 @@ public class RobotRace extends Base {
             new Vector(4, 11, 1),});
         // C-track
         raceTracks[3] = new RaceTrack(new Vector[]{
-            new Vector(-10, 20, 1),
-            new Vector(0, 30, 1),
-            new Vector(20, 30, 1),
-            new Vector(30, 20, 1),
-            new Vector(32, 18, 1),
-            new Vector(32, 12, 1),
-            new Vector(30, 10, 1),
-            new Vector(25, 5, 1),
-            new Vector(15, 15, 1),
-            new Vector(10, 10, 1),
+            new Vector(-5, 10, 1),
+            new Vector(0, 15, 1),
+            new Vector(10, 15, 1),
+            new Vector(15, 10, 1),
+            new Vector(16, 9, 1),
+            new Vector(16, 6, 1),
+            new Vector(15, 5, 1),
+            new Vector(12.5, 2.5, 1),
+            new Vector(7.5, 7.5, 1),
             new Vector(5, 5, 1),
+            new Vector(2.5, 2.5, 1),
+            new Vector(2.5, -2.5, 1),
             new Vector(5, -5, 1),
-            new Vector(10, -10, 1),
-            new Vector(15, -15, 1),
-            new Vector(25, -5, 1),
-            new Vector(30, -10, 1),
-            new Vector(32, -12, 1),
-            new Vector(32, -18, 1),
-            new Vector(30, -20, 1),
-            new Vector(20, -30, 1),
-            new Vector(0, -30, 1),
-            new Vector(-10, -20, 1),
-            new Vector(-20, -10, 1),
-            new Vector(-20, 10, 1),
-            new Vector(-10, 20, 1),
-            });
+            new Vector(7.5, -7.5, 1),
+            new Vector(12.5, -2.5, 1),
+            new Vector(15, -5, 1),
+            new Vector(16, -6, 1),
+            new Vector(16, -9, 1),
+            new Vector(15, -10, 1),
+            new Vector(10, -15, 1),
+            new Vector(0, -15, 1),
+            new Vector(-5, -10, 1),
+            new Vector(-10, -5, 1),
+            new Vector(-10, 5, 1),
+            new Vector(-5, 10, 1),});
 
         // Custom track
         raceTracks[4] = new RaceTrack(new Vector[]{
-            new Vector(-20, 0, 1),
-            new Vector(-28, 8, 1),
-            new Vector(-24, 10, 1),
-            new Vector(-16, 4, 1),
-            new Vector(-12, -2, 1),
-            new Vector(-10, 2, 1),
-            new Vector(-14, 10, 1),
-            new Vector(-16, 16, 1),
-            new Vector(-12, 16, 1),
-            new Vector(-10, 10, 1),
-            new Vector(-6, 4, 1),
-            new Vector(-4, 6, 1),
-            new Vector(-5, 14, 1),
-            new Vector(-5, 20, 1),
-            new Vector(5, 20, 1),
-            new Vector(5, 10, 1),
-            new Vector(5, -10, 1),
-            new Vector(-10, 10, 1),
-            new Vector(-0, 0, 1),});
+            new Vector(-7.5, 0, 8),
+            new Vector(-7.5, 7.5, 8),
+            new Vector(7.5, 7.5, 8),
+            new Vector(7.5, 0, 8),
+            new Vector(7.5, -7.5, 8),
+            new Vector(-7.5, -7.5, 8),
+            new Vector(-7.5, 0, 1),
+            new Vector(-7.5, 7.5, 1),
+            new Vector(-22.5, 7.5, 1),
+            new Vector(-22.5, 0, 1),
+            new Vector(-22.5, -15, 1),
+            new Vector(-7.5, -15, 8),
+            new Vector(-7.5, 0, 8),});
 
         // Initialize the terrain
         terrain = new Terrain();
@@ -342,10 +335,26 @@ public class RobotRace extends Base {
 
         for (int i = 0; i < 4; i++) {
             gl.glPushMatrix();
-            gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
-            double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
+            //gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
+            //double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
+
+            // Calculate the dot product between the tangent and the Y axis.
+            double dot = robots[i].direction.dot(Vector.Y);
+
+            //Divide by length of y-axis and direction to get cos
+            double cosangle = dot / (robots[i].direction.length() * Vector.Y.length());
+
+            //Check if x is negative of possitive     
+            double angle;
+            if (robots[i].direction.x() >= 0) {
+                angle = -Math.acos(cosangle);
+            } else {
+                angle = Math.acos(cosangle);
+            }
+            gl.glRotated(Math.toDegrees(angle), 0, 0, 1);
+
             // Rotate bender to stand perpendicular to lange tangent
-            gl.glRotated(Math.toDegrees(angle) - 90, 0, 0, 1);
+            // gl.glRotated(Math.toDegrees(angle) - 90, 0, 0, 1);
             robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
             gl.glPopMatrix();
         }
@@ -353,7 +362,7 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
 
         // Draw the race track.
-        raceTracks[gs.trackNr].draw(gl, glu, glut,track,brick,finish);
+        raceTracks[gs.trackNr].draw(gl, glu, glut, track, brick, finish);
 
         // Draw the terrain.
         terrain.draw(gl, glu, glut);
