@@ -58,7 +58,7 @@ public class RobotRace extends Base {
     private Double speed = 0.0;
 
     private Texture finish;
-
+    private Texture sky;
     /**
      * Array of the four robots.
      */
@@ -225,6 +225,7 @@ public class RobotRace extends Base {
         head = loadTexture("head.jpg");
         torso = loadTexture("torso.jpg");
         finish = loadTexture("finish.jpg");
+        sky = loadTexture("sky.jpg");
     }
 
     /**
@@ -335,7 +336,7 @@ public class RobotRace extends Base {
 
         for (int i = 0; i < 4; i++) {
             gl.glPushMatrix();
-            //gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
+            gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
             //double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
 
             // Calculate the dot product between the tangent and the Y axis.
@@ -365,7 +366,8 @@ public class RobotRace extends Base {
         raceTracks[gs.trackNr].draw(gl, glu, glut, track, brick, finish);
 
         // Draw the terrain.
-        terrain.draw(gl, glu, glut);
+//        terrain.draw(gl, glu, glut);
+terrain.draw(gl,glut,sky);
     }
 
     /**

@@ -5,7 +5,13 @@ package robotrace;
 */
 public enum Material {
     
-//diffuse should be darker than specular
+     /**
+         * Water material properties.
+         */
+        WATER (
+            new float[] {0.5f, 0.5f, 0.5f, 0.5f},
+            new float[] {0.5f, 0.5f, 0.5f, 0.5f},
+            100f),
     /** 
      * Gold material properties.
      */
