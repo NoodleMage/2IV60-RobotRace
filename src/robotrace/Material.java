@@ -5,37 +5,63 @@ package robotrace;
 */
 public enum Material {
     
-//diffuse should be darker than specular
+     /**
+         * Water material properties.
+         */
+        WATER (
+            new float[] {0.5f, 0.5f, 0.5f, 0.5f},
+            new float[] {0.5f, 0.5f, 0.5f, 0.5f},
+            100f),
     /** 
      * Gold material properties.
-     * Modify the default values to make it look like gold.
      */
     GOLD (
         new float[] {RGBToFloat(191), RGBToFloat(155), RGBToFloat(48), 1.0f},
         new float[] {RGBToFloat(255), RGBToFloat(191), RGBToFloat(0), 1.0f},     
         100f),
+    
+    /** 
+     * Gold accent material properties.
+     */
+    GOLD_ACCENT (
+        new float[] {RGBToFloat(211), RGBToFloat(150), RGBToFloat(0), 1.0f},
+        new float[] {RGBToFloat(255), RGBToFloat(191), RGBToFloat(0), 1.0f},     
+        100f),
 
     /**
      * Silver material properties.
-     * Modify the default values to make it look like silver.
      */
     SILVER (
         new float[] {RGBToFloat(158), RGBToFloat(158), RGBToFloat(158), 1.0f},
         new float[] {RGBToFloat(189), RGBToFloat(189), RGBToFloat(189), 1.0f},     
       128),
+    
+      /** 
+     * Silver accent material properties.
+     */
+    SILVER_ACCENT (
+        new float[] {RGBToFloat(178), RGBToFloat(153), RGBToFloat(180), 1.0f},
+        new float[] {RGBToFloat(189), RGBToFloat(189), RGBToFloat(189), 1.0f},     
+        100f),
 
     /** 
      * Wood material properties.
-     * Modify the default values to make it look like wood.
      */
     WOOD (
-        new float[] {RGBToFloat(121), RGBToFloat(85), RGBToFloat(72), 1.0f},
-        new float[] {RGBToFloat(141), RGBToFloat(110), RGBToFloat(99), 1.0f},     
+        new float[] {RGBToFloat(62), RGBToFloat(39), RGBToFloat(35), 1.0f},
+        new float[] {RGBToFloat(78), RGBToFloat(52), RGBToFloat(46), 1.0f},     
+      1f),
+    
+     /** 
+     * Wood accent material properties.
+     */
+    WOOD_ACCENT (
+        new float[] {RGBToFloat(82), RGBToFloat(34), RGBToFloat(28), 1.0f},
+        new float[] {RGBToFloat(78), RGBToFloat(52), RGBToFloat(46), 1.0f},     
       1f),
 
     /**
      * Orange material properties.
-     * Modify the default values to make it look like orange.
      */
     ORANGE (
         new float[] {RGBToFloat(255), RGBToFloat(152), RGBToFloat(0), 1.0f},
@@ -43,8 +69,7 @@ public enum Material {
             128f),
     
      /**
-     * Orange material properties.
-     * Modify the default values to make it look like orange.
+     * Red material properties.
      */
     RED (
         new float[] {RGBToFloat(244), RGBToFloat(67), RGBToFloat(54), 1.0f},
@@ -52,8 +77,7 @@ public enum Material {
         100f),
     
     /**
-     * Orange material properties.
-     * Modify the default values to make it look like orange.
+     * Green material properties.
      */
     GREEN (
         new float[] {RGBToFloat(76), RGBToFloat(175), RGBToFloat(80), 1.0f},
@@ -61,8 +85,7 @@ public enum Material {
         100f),
     
     /**
-     * Orange material properties.
-     * Modify the default values to make it look like orange.
+     * Blue material properties.
      */
      BLUE (
          new float[] {RGBToFloat(33), RGBToFloat(150), RGBToFloat(243), 1.0f},
@@ -70,8 +93,7 @@ public enum Material {
        100f),
      
       /**
-     * Orange material properties.
-     * Modify the default values to make it look like orange.
+     * Yellow material properties.
      */
      YELLOW (
         new float[] {RGBToFloat(255), RGBToFloat(235), RGBToFloat(59), 1.0f},
@@ -79,12 +101,19 @@ public enum Material {
       100f),
      
        /**
-     * Orange material properties.
-     * Modify the default values to make it look like orange.
+     * Black material properties.
      */
      BLACK (
         new float[] {RGBToFloat(0), RGBToFloat(0), RGBToFloat(0), 1.0f},
         new float[] {RGBToFloat(0), RGBToFloat(0), RGBToFloat(0), 1.0f},     
+      100f),
+     
+       /**
+     * White material properties.
+     */
+     WHITE (
+        new float[] {RGBToFloat(255), RGBToFloat(255), RGBToFloat(255), 1.0f},
+        new float[] {RGBToFloat(255), RGBToFloat(255), RGBToFloat(255), 1.0f},     
       100f),
      
       /** 
@@ -116,6 +145,7 @@ public enum Material {
     
     private static float RGBToFloat(int rgb)
     {
+        //Returns the rbg value calculated with an extensive and difficult formula.
         return rgb/255f;
     }
 }

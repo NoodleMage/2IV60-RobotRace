@@ -1,5 +1,7 @@
 package robotrace;
 
+import com.jogamp.opengl.util.texture.Texture;
+import java.util.Random;
 import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
 import static javax.media.opengl.GL2.*;
@@ -40,6 +42,23 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
  */
 public class RobotRace extends Base {
 
+    private Double step = 0d;
+
+    private int luckCount = 0;
+
+    private Double[] steps = {0.0, 0.0, 0.0, 0.0};
+
+    private Boolean[] hasLuck = {false, false, false, false};
+
+    private static int MOTOR_LANE = 7;
+
+    private Vector motorPosition;
+
+    private Double N = 10000d;
+    private Double speed = 0.0;
+
+    private Texture finish;
+    private Texture sky;
     /**
      * Array of the four robots.
      */
@@ -69,21 +88,17 @@ public class RobotRace extends Base {
         // Create a new array of four robots
         robots = new Robot[4];
 
-        // Initialize robot 0
-        robots[0] = new Robot(Material.GOLD
-        /* add other parameters that characterize this robot */);
+        // Initialize bender 0
+        robots[0] = new Robot(Material.GOLD, Material.GOLD_ACCENT);
 
-        // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER
-        /* add other parameters that characterize this robot */);
+        // Initialize bender 1
+        robots[1] = new Robot(Material.SILVER, Material.SILVER_ACCENT);
 
-        // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD
-        /* add other parameters that characterize this robot */);
+        // Initialize bender 2
+        robots[2] = new Robot(Material.WOOD, Material.WOOD_ACCENT);
 
-        // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE
-        /* add other parameters that characterize this robot */);
+        // Initialize bender 3
+        robots[3] = new Robot(Material.ORANGE, Material.GOLD_ACCENT);
 
         // Initialize the camera
         camera = new Camera();
@@ -95,19 +110,87 @@ public class RobotRace extends Base {
         raceTracks[0] = new RaceTrack();
 
         // O-track
-        raceTracks[1] = new RaceTrack(new Vector[]{ /* add control points like:
-            new Vector(10, 0, 1), new Vector(10, 5, 1), new Vector(5, 10, 1),
-            new Vector(..., ..., ...), ...
-         */});
+        raceTracks[1] = new RaceTrack(new Vector[]{new Vector(-15, 0, 1),
+            new Vector(-15, 15, 1),
+            new Vector(15, 15, 1),
+            new Vector(15, 0, 1),
+            new Vector(15, -15, 1),
+            new Vector(-15, -15, 1),
+            new Vector(-15, 0, 1)});
 
         // L-track
-        raceTracks[2] = new RaceTrack(new Vector[]{ /* add control points */});
-
+        raceTracks[2] = new RaceTrack(new Vector[]{
+            new Vector(4, 11, 1),
+            new Vector(4, 10, 1),
+            new Vector(4, 9, 1),
+            new Vector(4, 7, 1),
+            new Vector(4, 2, 1),
+            new Vector(5, 0, 1),
+            new Vector(13, 0, 1),
+            new Vector(16, 0, 1),
+            new Vector(18, 0, 1),
+            new Vector(20, 0, 1),
+            new Vector(23, 0, 1),
+            new Vector(23, -5, 1),
+            new Vector(20, -5, 2),
+            new Vector(17, -5, 2),
+            new Vector(10, -5, 1),
+            new Vector(1, -5, 1),
+            new Vector(-1, -5, 1),
+            new Vector(-3, -3, 1),
+            new Vector(-3, -1, 1),
+            new Vector(-3, 1, 1),
+            new Vector(-3, 5, 1),
+            new Vector(-3, 10, 1),
+            new Vector(-3, 13, 1),
+            new Vector(-1, 15, 1),
+            new Vector(2, 15, 1),
+            new Vector(4, 15, 1),
+            new Vector(4, 12, 1),
+            new Vector(4, 11, 1),});
         // C-track
-        raceTracks[3] = new RaceTrack(new Vector[]{ /* add control points */});
+        raceTracks[3] = new RaceTrack(new Vector[]{
+            new Vector(-5, 10, 1),
+            new Vector(0, 15, 1),
+            new Vector(10, 15, 1),
+            new Vector(15, 10, 1),
+            new Vector(16, 9, 1),
+            new Vector(16, 6, 1),
+            new Vector(15, 5, 1),
+            new Vector(12.5, 2.5, 1),
+            new Vector(7.5, 7.5, 1),
+            new Vector(5, 5, 1),
+            new Vector(2.5, 2.5, 1),
+            new Vector(2.5, -2.5, 1),
+            new Vector(5, -5, 1),
+            new Vector(7.5, -7.5, 1),
+            new Vector(12.5, -2.5, 1),
+            new Vector(15, -5, 1),
+            new Vector(16, -6, 1),
+            new Vector(16, -9, 1),
+            new Vector(15, -10, 1),
+            new Vector(10, -15, 1),
+            new Vector(0, -15, 1),
+            new Vector(-5, -10, 1),
+            new Vector(-10, -5, 1),
+            new Vector(-10, 5, 1),
+            new Vector(-5, 10, 1),});
 
         // Custom track
-        raceTracks[4] = new RaceTrack(new Vector[]{ /* add control points */});
+        raceTracks[4] = new RaceTrack(new Vector[]{
+            new Vector(-7.5, 0, 8),
+            new Vector(-7.5, 7.5, 8),
+            new Vector(7.5, 7.5, 8),
+            new Vector(7.5, 0, 8),
+            new Vector(7.5, -7.5, 8),
+            new Vector(-7.5, -7.5, 8),
+            new Vector(-7.5, 0, 1),
+            new Vector(-7.5, 7.5, 1),
+            new Vector(-22.5, 7.5, 1),
+            new Vector(-22.5, 0, 1),
+            new Vector(-22.5, -15, 1),
+            new Vector(-7.5, -15, 8),
+            new Vector(-7.5, 0, 8),});
 
         // Initialize the terrain
         terrain = new Terrain();
@@ -141,6 +224,8 @@ public class RobotRace extends Base {
         brick = loadTexture("brick.jpg");
         head = loadTexture("head.jpg");
         torso = loadTexture("torso.jpg");
+        finish = loadTexture("finish.jpg");
+        sky = loadTexture("sky.jpg");
     }
 
     /**
@@ -156,9 +241,10 @@ public class RobotRace extends Base {
         gl.glLoadIdentity();
 
         // Set the perspective.
-        // Modify this to meet the requirements in the assignment.
-        Double angle = Math.atan2(gs.vDist,(0.5*gs.vWidth));
-        glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.1*gs.vDist, 10 * gs.vDist);
+        // calculate angle by dividing opposite by adjacent line
+        Double angle = Math.atan2(gs.vDist, (0.5 * gs.vWidth));
+        //Set perspective equal to angle in degrees 
+        glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.1 * gs.vDist, 10 * gs.vDist);
 
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);
@@ -166,7 +252,21 @@ public class RobotRace extends Base {
 
         // Update the view according to the camera mode and robot of interest.
         // For camera modes 1 to 4, determine which robot to focus on.
-        camera.update(gs, robots[0]);
+        int best = 0;
+        int worst = 0;
+
+        for (int i = 0; i < 4; i++) {
+            if (steps[i] > steps[best]) {
+                best = i;
+            }
+            if (steps[i] < steps[worst]) {
+                worst = i;
+            }
+        }
+
+        motorPosition = raceTracks[gs.trackNr].getLanePoint(MOTOR_LANE, steps[best] / N);
+
+        camera.update(gs, robots[best], robots[worst], motorPosition);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
@@ -179,6 +279,7 @@ public class RobotRace extends Base {
      */
     @Override
     public void drawScene() {
+
         // Background color.
         gl.glClearColor(1f, 1f, 1f, 0f);
 
@@ -190,28 +291,83 @@ public class RobotRace extends Base {
 
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        // Draw the axis frame.
+        // Draw the axis frame if desired.
         if (gs.showAxes) {
             drawAxisFrame();
         }
 
-        // Get the position and direction of the first robot.
-        robots[0].position = raceTracks[gs.trackNr].getLanePoint(0, 0);
-        robots[0].direction = raceTracks[gs.trackNr].getLaneTangent(0, 0);
-        
-        gl.glPushMatrix();
-        gl.glTranslatef(0f, 1.0f, 0f);
-        for (int i = 0; i < 4; i++) {
-        gl.glTranslatef(1.0f, 0f, 0f);
-        robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+        // create array of speeds variations
+        Double[] speeds = new Double[4];
+//        System.out.println(luckCount);
+        if (luckCount >= 250) {
+            luckCount = 0;
+            for (int i = 0; i < 4; i++) {
+                Random rand = new Random();
+                hasLuck[i] = rand.nextBoolean();
+            }
         }
+
+        for (int i = 0; i < 4; i++) {
+            if (hasLuck[i]) {
+                Random rand = new Random();
+                speeds[i] = speed + (rand.nextDouble() * 4);
+            } else {
+                Random rand = new Random();
+                speeds[i] = speed + rand.nextDouble();
+            }
+        }
+
+//         Get the position and direction of the first robot.
+        for (int i = 0; i < 4; i++) {
+            robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, steps[i] / N);
+            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, steps[i] / N);
+            // System.out.println(raceTracks[gs.trackNr].getLanePoint(i,steps[i]/N).x);
+            // camera.update(gs, robots[i]);
+//           System.out.println("Bot: " + i + " speed: " + steps[i]);
+            steps[i] += speeds[i];
+            luckCount++;
+            if (steps[i] / N >= 1) {
+                steps[i] = 0d;
+            }
+        }
+
+        //Draw robots
+        gl.glPushMatrix();
+
+        for (int i = 0; i < 4; i++) {
+            gl.glPushMatrix();
+            gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
+            //double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
+
+            // Calculate the dot product between the tangent and the Y axis.
+            double dot = robots[i].direction.dot(Vector.Y);
+
+            //Divide by length of y-axis and direction to get cos
+            double cosangle = dot / (robots[i].direction.length() * Vector.Y.length());
+
+            //Check if x is negative of possitive     
+            double angle;
+            if (robots[i].direction.x() >= 0) {
+                angle = -Math.acos(cosangle);
+            } else {
+                angle = Math.acos(cosangle);
+            }
+            gl.glRotated(Math.toDegrees(angle), 0, 0, 1);
+
+            // Rotate bender to stand perpendicular to lange tangent
+            // gl.glRotated(Math.toDegrees(angle) - 90, 0, 0, 1);
+            robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+            gl.glPopMatrix();
+        }
+
         gl.glPopMatrix();
 
         // Draw the race track.
-        raceTracks[gs.trackNr].draw(gl, glu, glut);
+        raceTracks[gs.trackNr].draw(gl, glu, glut, track, brick, finish);
 
         // Draw the terrain.
-        terrain.draw(gl, glu, glut);
+//        terrain.draw(gl, glu, glut);
+terrain.draw(gl,glut,sky);
     }
 
     /**
@@ -221,21 +377,21 @@ public class RobotRace extends Base {
     public void drawAxisFrame() {
         // Push new matrix to stack to modify safely
         gl.glPushMatrix();
-        
+
         // Array to store the material
-        Material[] colors = {Material.RED,Material.GREEN,Material.BLUE};
-        
+        Material[] colors = new Material[]{Material.RED, Material.GREEN, Material.BLUE};
+
         // 2D array to store the line translations
         float[][] translation = new float[][]{
-            {0.5f, 0f, 0f},  // Red
-            {0f, 0.5f, 0f},  // Green
-            {0f, 0f, 0.5f}   // Blue
+            {0.5f, 0f, 0f}, // Red
+            {0f, 0.5f, 0f}, // Green
+            {0f, 0f, 0.5f} // Blue
         };
         // 2D array to store the rotation coordinates
         float[][] rotation = new float[][]{
-            {90f, 0f, 1f, 0f},   // Red
-            {90f, -1f, 0f, 0f},  // Green
-            {0,0,0,0}            // Blue
+            {90f, 0f, 1f, 0f}, // Red
+            {90f, -1f, 0f, 0f}, // Green
+            {0, 0, 0, 0} // Blue
         };
 
         // Iterate through i = 0; i < 3; in order to draw the three exis
@@ -248,11 +404,11 @@ public class RobotRace extends Base {
             // Set the color accordingly
             gl.glMaterialf(GL_FRONT, GL_SHININESS, colors[i].shininess);
             gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, colors[i].diffuse, 0);
-            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, colors[i].specular, 0); 
+            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, colors[i].specular, 0);
             // Translate the matrix accordingly
             gl.glTranslatef(translation[i][0], translation[i][1], translation[i][2]);
             // Rotate the matrix accordingly
-            gl.glRotatef(rotation[i][0],rotation[i][1],rotation[i][2],rotation[i][3]);
+            gl.glRotatef(rotation[i][0], rotation[i][1], rotation[i][2], rotation[i][3]);
 
             // Push new matrix to stack to edit safely
             gl.glPushMatrix();
@@ -262,7 +418,7 @@ public class RobotRace extends Base {
             glut.glutSolidCone(0.1f, 0.25f, 20, 20);
             // Pop matrix of stack to return origin matrix
             gl.glPopMatrix();
-            
+
             // Scale the matrix to convert cubes into lines sortof
             gl.glScalef(0.035f, 0.035f, 1f);
             // Draw a cube with 1 meter lenght
@@ -270,50 +426,44 @@ public class RobotRace extends Base {
             // Pop matrix of stack to return origin matrix
             gl.glPopMatrix();
         }
-        
+
         // Push new matrix to stack to edit safely
         gl.glPushMatrix();
         // Set the Draw color to yellow
         gl.glMaterialf(GL_FRONT, GL_SHININESS, Material.YELLOW.shininess);
         gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, Material.YELLOW.diffuse, 0);
-        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.YELLOW.specular, 0); 
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, Material.YELLOW.specular, 0);
         // Draw the sphere
         glut.glutSolidSphere(0.15f, 20, 20);
         // Pop the matrix back to original state
         gl.glPopMatrix();
-        
+
         // Pop the matrix back to original state
         gl.glPopMatrix();
-        // Reset the draw color to black
-        gl.glColor3f(0f, 0f, 0f);
     }
 
-    public void setLighting()
-    {
+    public void setLighting() {
         //Enable shading, ambient light and one light source. Use a light source at infinity.
         //The direction of the light is such that light comes more or less from the direction
         //of the camera. The direction of the light is shifted by 10 degrees to the left and
         //upwards with regard to the view direction.
-         // Prepare light parameters.
-        
-        float theta = gs.theta;
-        float phi = gs.phi;
-        float radius = gs.vDist;
-        
-        double x = radius * Math.cos(theta) * Math.sin(phi);
-        double y = radius * Math.sin(theta) * Math.sin(phi);
-        double z = radius * Math.cos(phi);
-        
-        float[] lightPos = {(float) x - 1f,(float) y,(float)z + 1f, 1.0f};
-        
+        // Prepare light parameters.
+
+        //In future can be moved to camera
+        //Get position by camera vector. Modify to extend by 10 degree angle
+        float[] lightPos = {(float) camera.eye.x - 1f, (float) camera.eye.y, (float) camera.eye.z + 1f, 1.0f};
+
+        //Set ambient lighting
         float[] lightColorAmbient = {0.5f, 0.5f, 0.5f, 1f};
 
         // Set light parameters.
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightPos, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, lightColorAmbient, 0);
 
-        // Enable lighting in GL.
-        gl.glShadeModel(GL_SMOOTH); // Use smooth shading
+        // Enable smooth shadow in GL.
+        gl.glShadeModel(GL_SMOOTH);
+
+        //Enable lighting
         gl.glEnable(GL2.GL_LIGHT0);
         gl.glEnable(GL2.GL_LIGHTING);
     }
