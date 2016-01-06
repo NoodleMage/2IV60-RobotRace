@@ -13,6 +13,7 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import javax.media.opengl.glu.GLU;
 import static java.lang.Math.abs;
+import java.util.Random;
 
 /**
  *
@@ -47,19 +48,7 @@ public abstract class BodyPart {
     // Declaration for the animation ticker
     public float tAnim;
     
-    public void calc(){
-        //Calculate width of head with respect to bodywidth
-        this.headWidth = (this.width / 11) * 5;
-        //Calculate height of face (cylinder without hemisphere) with respect to headWidth
-        this.faceHeight = headWidth * 1.5;
-        //Calculate foreheadradius with respect to headWidth
-        this.foreheadRadius = headWidth / 2;
-        //Calculate radius of antenne base with respect to foreheadRadius
-        this.antennaBaseRadius = foreheadRadius / 5;
-        
-        this.limbRadius = this.bodyWidthRadius / 6;
-        this.armLength = this.lenght * .75 / 2;
-    }
+    public Random rand = new Random();
     
     /**
      * Draw function for the body part
@@ -92,8 +81,11 @@ public abstract class BodyPart {
         glut.glutSolidCone(radius, height, slices, stacks);
     }
 
+    /**
+     *
+     * @param material Set material determined by given robot type
+     */
     public void setMaterial(Material material) {
-        //Set material determined by given robot type
         gl.glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
         gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, material.diffuse, 0);
         gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
@@ -206,8 +198,9 @@ class Arm extends BodyPart {
     int lowerstep;
 
     public Arm(int s) {
+        //upperAnim += rand.nextInt(20);
         side = s;
-        upperstep = 5 * s;
+        upperstep = 8 * -s;
         lowerstep = 5;
     }
 
@@ -215,9 +208,9 @@ class Arm extends BodyPart {
     public void Draw() {
         // Step up the animation tickers
         upperAnim += upperstep;
-        lowerAnim += lowerstep * 1;    
+        lowerAnim += lowerstep;    
         
-        if (abs(upperAnim) == 80 && upperAnim >= 0 || upperAnim < 0 && abs(upperAnim) == 30) {
+        if (abs(upperAnim) >= 80 && upperAnim >= 0 || upperAnim < 0 && abs(upperAnim) >= 45) {
             upperstep = upperstep * -1;
         }
         
@@ -272,29 +265,43 @@ class Arm extends BodyPart {
 
 class Leg extends BodyPart {
     int side;
+    
+    int step = 5;
+    int angle = 0;
 
     public Leg(int s) {
         this.side = s;
+        this.step = this.step * s;
     }
 
     @Override
     public void Draw() {
-        gl.glPushMatrix();
-        //Translate for correct leg to body position
-        gl.glTranslated(0, 0, -this.lenght * 0.70);
+        this.angle += step;
         
-        gl.glPushMatrix();
+        if (abs(angle) == 40){
+            step = step * -1;
+        }
+        
+        gl.glPushMatrix();        
+        
+        //gl.glPushMatrix();
                  //Set accent color
                 setMaterial(this.accent);
                 
                 //Translate legs for correct position to body
-                gl.glTranslated((this.width*.3)*side, 0, 0);
+                gl.glTranslated((this.width*.2)*side, 0, this.limbRadius);
                 gl.glPushMatrix();
                 
                 //Draw rotated leg
-                //gl.glRotated(-7*side, 0, 1, 0);
-                SolidCylinder(this.limbRadius, this.lenght*.9);
-                gl.glPopMatrix();
+                gl.glRotated(-7*side, 0, 1, 0);
+                
+                // Animate the leg swaying
+                gl.glRotated(angle, 1, 0, 0);
+                
+                SolidCylinder(this.limbRadius, -this.lenght*.8);
+                //gl.glPopMatrix();
+                
+                gl.glTranslated(0, 0, -this.lenght * 0.80);
                 
                 //Set original color
                 setMaterial(this.material);

@@ -30,8 +30,14 @@ class Robot {
     //  Set the Robot stats
     private final double scale = 0.05;
     private final double bodyWidth = 9;
-    private final double bodyWidthRadius = bodyWidth / 2;
+    private final double bodyWidthRadius = this.bodyWidth / 2;
     private final double bodyHeight = 11;
+    public double headWidth  = (this.bodyWidth / 11) * 5;
+    public double faceHeight = this.headWidth * 1.5;
+    public double foreheadRadius  = this.headWidth / 2;
+    public double antennaBaseRadius  = this.foreheadRadius / 5;
+    public double limbRadius  = this.bodyWidthRadius / 6;
+    public double armLength = this.bodyHeight * .75 / 2;
 
     // New declaration for parameterization update
     private final Head head = new Head();
@@ -51,6 +57,21 @@ class Robot {
     /* add other parameters that characterize this robot */) {
         this.material = material;
         this.accent = accent;
+        
+        // Assign static values to bodypart attributes
+        for (BodyPart p : parts) {
+            p.lenght = this.bodyHeight;
+            p.width = this.bodyWidth;
+            p.bodyWidthRadius = this.bodyWidthRadius;
+            p.material = this.material;
+            p.accent = this.accent;           
+            p.headWidth = this.headWidth;
+            p.faceHeight = this.faceHeight;
+            p.foreheadRadius = this.foreheadRadius;
+            p.antennaBaseRadius = this.antennaBaseRadius;
+            p.limbRadius = this.limbRadius;
+            p.armLength = this.armLength;
+        }
     }
 
     /**
@@ -67,11 +88,6 @@ class Robot {
             p.glu = glu1;
             p.glut = glut1;
             p.tAnim = tAnim;
-            p.lenght = this.bodyHeight;
-            p.width = this.bodyWidth;
-            p.bodyWidthRadius = this.bodyWidthRadius;
-            p.material = this.material;
-            p.accent = this.accent;
         }
 
         // Set the robots material
@@ -87,7 +103,6 @@ class Robot {
 
         // Draw the bodyParts
         for (BodyPart p : parts) {
-            p.calc();
             p.Draw();
         }
 
