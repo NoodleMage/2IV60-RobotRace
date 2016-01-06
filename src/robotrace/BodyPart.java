@@ -28,6 +28,12 @@ public abstract class BodyPart {
     public double lenght;
     public double width;
     public double bodyWidthRadius;
+    public double headWidth;
+    public double faceHeight;
+    public double foreheadRadius;
+    public double antennaBaseRadius;
+    public double limbRadius;
+    public double armLength;
 
     // Declarations for drawing resolution
     public final int stacks = 30;
@@ -40,6 +46,20 @@ public abstract class BodyPart {
 
     // Declaration for the animation ticker
     public float tAnim;
+    
+    public void calc(){
+        //Calculate width of head with respect to bodywidth
+        this.headWidth = (this.width / 11) * 5;
+        //Calculate height of face (cylinder without hemisphere) with respect to headWidth
+        this.faceHeight = headWidth * 1.5;
+        //Calculate foreheadradius with respect to headWidth
+        this.foreheadRadius = headWidth / 2;
+        //Calculate radius of antenne base with respect to foreheadRadius
+        this.antennaBaseRadius = foreheadRadius / 5;
+        
+        this.limbRadius = this.bodyWidthRadius / 6;
+        this.armLength = this.lenght * .75 / 2;
+    }
     
     /**
      * Draw function for the body part
@@ -84,15 +104,7 @@ class Head extends BodyPart {
 
     @Override
     public void Draw() {
-        gl.glPushMatrix();
-        //Calculate width of head with respect to bodywidth
-        double headWidth = (this.width / 11) * 5;
-        //Calculate height of face (cylinder without hemisphere) with respect to headWidth
-        double faceHeight = headWidth * 1.5;
-        //Calculate foreheadradius with respect to headWidth
-        double foreheadRadius = headWidth / 2;
-        //Calculate radius of antenne base with respect to foreheadRadius
-        double antennaBaseRadius = foreheadRadius / 5;
+        gl.glPushMatrix();     
         
         // Draw the face (cylinder without hemisphere)
         gl.glTranslated(0, 0, this.lenght);
@@ -187,9 +199,9 @@ class Body extends BodyPart {
 class Arm extends BodyPart {
 
     int side;
-    int upperAnim = 0;
-    int lowerAnim = 0;
     
+    int upperAnim = 0;
+    int lowerAnim = 0; 
     int upperstep;
     int lowerstep;
 
@@ -231,19 +243,18 @@ class Arm extends BodyPart {
         gl.glRotated(-upperAnim, 1, 0, 0);
         
         //Draw shoulder
-        SolidSphere(this.bodyWidthRadius / 6);
+        SolidSphere(this.limbRadius);
         
         // Draw upper arm
-        //glut.glutSolidCylinder(this.bodyWidthRadius / 6, this.lenght * .75, slices, stacks);
-        SolidCylinder(this.bodyWidthRadius / 6, (this.lenght * .75)/2);
+        SolidCylinder(this.limbRadius, this.armLength);
         
         // Draw elbow joint
-        gl.glTranslated(0, 0, (this.lenght * .75)/2);
-        SolidSphere(this.bodyWidthRadius / 6);
+        gl.glTranslated(0, 0, this.armLength);
+        SolidSphere(this.limbRadius);
         
         // Draw lower arm
         gl.glRotated(-lowerAnim, 1, 0, 0);
-        SolidCylinder(this.bodyWidthRadius / 6, (this.lenght * .75)/2);
+        SolidCylinder(this.limbRadius, this.armLength);
         
         //Translate for hand position
         gl.glTranslated(0, 0, (this.lenght * .80)/2);
@@ -263,7 +274,7 @@ class Leg extends BodyPart {
     int side;
 
     public Leg(int s) {
-        side = s;
+        this.side = s;
     }
 
     @Override
@@ -282,7 +293,7 @@ class Leg extends BodyPart {
                 
                 //Draw rotated leg
                 //gl.glRotated(-7*side, 0, 1, 0);
-                SolidCylinder(this.bodyWidthRadius/6, this.lenght*.9);
+                SolidCylinder(this.limbRadius, this.lenght*.9);
                 gl.glPopMatrix();
                 
                 //Set original color

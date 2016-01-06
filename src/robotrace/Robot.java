@@ -12,46 +12,37 @@ import javax.media.opengl.glu.GLU;
  * Represents a Robot, to be implemented according to the Assignments.
  */
 class Robot {
-
-    /**
-     * The position of the robot.
-     */
+   
+     // The position of the robot
     public Vector position = new Vector(0, 0, 0);
 
-    /**
-     * The direction in which the robot is running.
-     */
+    // The direction in which the robot is running
     public Vector direction = new Vector(1, 0, 0);
 
-    /**
-     * The material from which this robot is built.
-     */
+    // The material from which this robot is built
     private final Material material;
     private final Material accent;
 
-    /**
-     * Make global variables to simplify the code
-     */
+    // Make global variables to simplify the code
     private GL2 gl;
     private GLUT glut;
 
-    /**
-     * Set the Robot stats
-     */
+    //  Set the Robot stats
     private final double scale = 0.05;
     private final double bodyWidth = 9;
     private final double bodyWidthRadius = bodyWidth / 2;
     private final double bodyHeight = 11;
 
-    /**
-     * New declaration for parameterization update
-     */
+    // New declaration for parameterization update
     private final Head head = new Head();
     private final Body body = new Body();
     private final Arm armL = new Arm(1);
     private final Arm armR = new Arm(-1);
     private final Leg legL = new Leg(1);
     private final Leg legR = new Leg(-1);
+    
+    // Put the body parts in an array
+    BodyPart[] parts = new BodyPart[]{head, body, armL, armR, legL, legR};
 
     /**
      * Constructs the robot with initial parameters.
@@ -65,16 +56,12 @@ class Robot {
     /**
      * Draws this robot (as a {@code stickfigure} if specified).
      */
-    public void draw(GL2 gl1, GLU glu1, GLUT glut1, boolean stickFigure, float tAnim) {
-
-        BodyPart[] parts = new BodyPart[]{head, body, armL, armR, legL, legR};
-        
-        // tAnim is blijkbaar een timer, die kunnen we gebruiken voor onze steps en animaties dus!!!!!!!
-        //System.out.println(tAnim);
+    public void draw(GL2 gl1, GLU glu1, GLUT glut1, boolean stickFigure, float tAnim) {      
 
         this.gl = gl1;
         this.glut = glut1;
-
+        
+        // Assign static values to bodypart attributes
         for (BodyPart p : parts) {
             p.gl = gl1;
             p.glu = glu1;
@@ -87,16 +74,20 @@ class Robot {
             p.accent = this.accent;
         }
 
+        // Set the robots material
         setMaterial(material);
 
-        // Draw the bot
         gl.glPushMatrix();
+        
         // Apply the universal scaling of the bot
         gl.glScaled(scale, scale, scale);
-        // Draw robot at correct position on XOY plane.
+        
+        // Translate for correct position on XOY plane.
         gl.glTranslated(0, 0, bodyHeight * .7);
 
+        // Draw the bodyParts
         for (BodyPart p : parts) {
+            p.calc();
             p.Draw();
         }
 
