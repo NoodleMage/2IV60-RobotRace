@@ -367,7 +367,7 @@ public class RobotRace extends Base {
 
         // Draw the terrain.
 //        terrain.draw(gl, glu, glut);
-        terrain.draw(gl, glut, sky);
+terrain.draw(gl,glut,sky);
     }
 
     /**
