@@ -11,7 +11,7 @@ public enum Material {
         WATER (
             new float[] {0.5f, 0.5f, 0.5f, 0.5f},
             new float[] {0.5f, 0.5f, 0.5f, 0.5f},
-            100f),
+            75f),
     /** 
      * Gold material properties.
      */

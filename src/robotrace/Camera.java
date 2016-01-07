@@ -93,7 +93,7 @@ class Camera {
         this.center = focus.position;
         
         //Add z unit vector for better view
-        this.eye = motorPosition.add(new Vector(0,0,1));
+        this.eye = motorPosition.add(new Vector(0,0,2));
     }
 
     /**
@@ -104,7 +104,7 @@ class Camera {
        this.up = Vector.Z;
        double robot_height = 1; //TODO
        this.eye = focus.position.add(new Vector(0.0001,0.0001,robot_height + 0.2));
-       this.center = focus.direction;
+       this.center = focus.direction.add(new Vector(0.0001,0.0001,robot_height + 0.2));
     }
     
     /**

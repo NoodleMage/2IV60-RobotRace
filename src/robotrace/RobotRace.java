@@ -55,7 +55,7 @@ public class RobotRace extends Base {
     private Vector motorPosition;
 
     private Double N = 10000d;
-    private Double speed = 0.0;
+    private Double speed = 5.0;
 
     private Texture finish;
     private Texture sky;
