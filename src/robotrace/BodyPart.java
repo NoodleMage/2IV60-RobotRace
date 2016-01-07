@@ -6,45 +6,317 @@
 package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
+import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import javax.media.opengl.glu.GLU;
+import static java.lang.Math.abs;
+import java.util.Random;
 
 /**
  *
- * @author Indi
+ * @author Indi Nijhof
  */
 public abstract class BodyPart {
-    
-    /** The position of the robot. */
-    public Vector position = new Vector(0, 0, 0);
-    
-    /** The direction in which the robot is running. */
-    public Vector direction = new Vector(1, 0, 0);
 
-    /** The material from which this robot is built. */
-//    private final Material material;
-//    private final Material accent;
+    // Declarations the bodyparts material objects
+    public Material material;
+    public Material accent;
+
+    // Declarations for body stats
+    public double lenght;
+    public double width;
+    public double bodyWidthRadius;
+    public double headWidth;
+    public double faceHeight;
+    public double foreheadRadius;
+    public double antennaBaseRadius;
+    public double limbRadius;
+    public double armLength;
+
+    // Declarations for drawing resolution
+    public final int stacks = 30;
+    public final int slices = 30;
+
+    // Declarations for neccesary OpenGL library's
+    public GL2 gl;
+    public GLU glu;
+    public GLUT glut;
+
+    // Declaration for the animation ticker
+    public float tAnim;
     
-    private double lenght;
-    private double width;
+    public Random rand = new Random();
     
-    private final int stacks = 30;
-    private final int slices = 30;
+    /**
+     * Draw function for the body part
+     */
+    public void Draw(){}
     
-    private GL2 gl;
-    private GLU glu;
-    private GLUT glut;
+    /**
+     *
+     * @param radius The radius of the object
+     * @param height The height of the object
+     */
+    public void SolidCylinder(Double radius, Double height){
+        glut.glutSolidCylinder(radius, height, slices, stacks);
+    }
     
-    public class Head extends BodyPart {
+    /**
+     *
+     * @param radius The radius of the sphere
+     */
+    public void SolidSphere(Double radius){
+        glut.glutSolidSphere(radius, slices, stacks);
+    }
+    
+    /**
+     *
+     * @param radius The cones base radius
+     * @param height The cones height
+     */
+    public void SolidCone(Double radius, Double height ){
+        glut.glutSolidCone(radius, height, slices, stacks);
     }
 
-    public class Body extends BodyPart {
+    /**
+     *
+     * @param material Set material determined by given robot type
+     */
+    public void setMaterial(Material material) {
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, material.diffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
+    }
+}
+
+class Head extends BodyPart {
+
+    @Override
+    public void Draw() {
+        gl.glPushMatrix();     
+        
+        // Draw the face (cylinder without hemisphere)
+        gl.glTranslated(0, 0, this.lenght);
+        SolidCylinder(foreheadRadius, faceHeight);
+        
+        // Draw the forehead (the hemishpere on top of face cylinder).
+        gl.glTranslated(0, 0, faceHeight);
+        SolidSphere(foreheadRadius);
+        
+        //Draw antenna-base
+        gl.glTranslated(0, 0, foreheadRadius);
+        SolidCone(antennaBaseRadius * 0.75, antennaBaseRadius * 6);
+        SolidSphere(antennaBaseRadius);
+        gl.glTranslated(0, 0, antennaBaseRadius * 5);
+        SolidSphere(antennaBaseRadius / 2);
+        
+        // Draw the eyesocket
+        gl.glTranslated(0, foreheadRadius * 1.5, -faceHeight * .8);
+        gl.glPushMatrix();
+        gl.glRotated(90, 1, 0, 0);
+        gl.glScaled(1, 0.5, 0.5);
+        SolidCylinder(foreheadRadius, faceHeight);
+        gl.glPopMatrix();
+
+        //Draw the eyes
+        int[] t = new int[]{1, -1}; //t for translation
+        for (int i = 0; i < 2; i++) {
+            gl.glPushMatrix();
+
+            gl.glTranslated((headWidth * .2) * t[i], .3, 0);
+            gl.glRotated(90, 1, 0, 0);
+
+            //Set material to white
+            this.setMaterial(Material.WHITE);
+            
+            SolidCylinder(foreheadRadius * .4, foreheadRadius);
+
+            gl.glTranslated(0, 0, -.25);
+            
+            //Set material to black
+            this.setMaterial(Material.BLACK);
+            
+            //glut.glutSolidCylinder(foreheadRadius*.2, foreheadRadius, slices, stacks);
+            glut.glutSolidCube((float) (foreheadRadius * .2));
+            gl.glPopMatrix();
+        }
+
+        //Set material to original
+        this.setMaterial(this.material);
+        gl.glPopMatrix();
+    }
+}
+
+class Body extends BodyPart {
+
+    @Override
+    public void Draw() {
+        gl.glPushMatrix();
+        gl.glPushMatrix();
+        
+        SolidCylinder(3.0, 0.0);
+
+        gl.glPushMatrix();
+        
+        double[] eqn = {0.0, 0.0, 1.0, 0.0};
+        //Create clip plane and enable plane
+        gl.glClipPlane(GL2.GL_CLIP_PLANE0, eqn, 0);
+        //Translate plane to correct position
+        gl.glTranslated(0, 0, this.lenght);
+        //Enable plane to cut of cone
+        gl.glEnable(GL2.GL_CLIP_PLANE0);
+
+        //Draw solidCone
+        SolidCone(4.5, -this.lenght * 3);
+        
+        //Disable plane (otherwise all shapes are affected)
+        gl.glDisable(GL2.GL_CLIP_PLANE0);
+        
+        gl.glPopMatrix();
+
+        gl.glPopMatrix();
+
+        gl.glTranslated(0, 0, this.lenght);
+        
+        // Draw the "neck"
+        SolidCone(this.width / 2, this.lenght * 0.3);
+        
+        gl.glPopMatrix();
+    }
+}
+
+class Arm extends BodyPart {
+
+    int side;
+    
+    int upperAnim = 0;
+    int lowerAnim = 0; 
+    int upperstep;
+    int lowerstep;
+
+    public Arm(int s) {
+        //upperAnim += rand.nextInt(20);
+        side = s;
+        upperstep = 8 * -s;
+        lowerstep = 5;
     }
 
-    public class Arm extends BodyPart {
+    @Override
+    public void Draw() {
+        // Step up the animation tickers
+        upperAnim += upperstep;
+        lowerAnim += lowerstep;    
+        
+        if (abs(upperAnim) >= 80 && upperAnim >= 0 || upperAnim < 0 && abs(upperAnim) >= 45) {
+            upperstep = upperstep * -1;
+        }
+        
+        if (lowerAnim == 80 || lowerAnim == 0) {
+            lowerstep = lowerstep * -1;
+        }
+        
+        gl.glPushMatrix();
+        
+        //Translate for correct position on body
+        gl.glTranslated(0, 0, this.lenght * .9);
+
+        gl.glPushMatrix();
+        
+        //Set accent color
+        setMaterial(this.accent);
+        
+        //Translate to correct postition next to body
+        gl.glTranslated((this.width * .5) * side, 0, 0);
+        
+        //Rotate arm
+        gl.glRotated(170 * side, 0, 1, 0);
+        gl.glRotated(-upperAnim, 1, 0, 0);
+        
+        //Draw shoulder
+        SolidSphere(this.limbRadius);
+        
+        // Draw upper arm
+        SolidCylinder(this.limbRadius, this.armLength);
+        
+        // Draw elbow joint
+        gl.glTranslated(0, 0, this.armLength);
+        SolidSphere(this.limbRadius);
+        
+        // Draw lower arm
+        gl.glRotated(-lowerAnim, 1, 0, 0);
+        SolidCylinder(this.limbRadius, this.armLength);
+        
+        //Translate for hand position
+        gl.glTranslated(0, 0, (this.lenght * .80)/2);
+
+        //Set original color
+        setMaterial(this.material);
+
+        //Draw hand
+        SolidCone(this.bodyWidthRadius / 3, -this.lenght * .3);
+        
+        gl.glPopMatrix();
+        gl.glPopMatrix();
+    }
+}
+
+class Leg extends BodyPart {
+    int side;
+    
+    int step = 5;
+    int angle = 0;
+
+    public Leg(int s) {
+        this.side = s;
+        this.step = this.step * s;
     }
 
-    public class Leg extends BodyPart {
+    @Override
+    public void Draw() {
+        this.angle += step;
+        
+        if (abs(angle) == 40){
+            step = step * -1;
+        }
+        
+        gl.glPushMatrix();        
+        
+        //gl.glPushMatrix();
+                 //Set accent color
+                setMaterial(this.accent);
+                
+                //Translate legs for correct position to body
+                gl.glTranslated((this.width*.2)*side, 0, this.limbRadius);
+                gl.glPushMatrix();
+                
+                //Draw rotated leg
+                gl.glRotated(-7*side, 0, 1, 0);
+                
+                // Animate the leg swaying
+                gl.glRotated(angle, 1, 0, 0);
+                
+                SolidCylinder(this.limbRadius, -this.lenght*.8);
+                //gl.glPopMatrix();
+                
+                gl.glTranslated(0, 0, -this.lenght * 0.80);
+                
+                //Set original color
+                setMaterial(this.material);
+                
+                //Create clipping plane for hemisphere feet
+                double[] eqn = {0.0, 0.0, 1.0, 0.0};
+                gl.glClipPlane (GL2.GL_CLIP_PLANE0, eqn,0);
+                gl.glEnable (GL2.GL_CLIP_PLANE0);
+                
+                //Draw feet
+                SolidSphere(bodyWidthRadius*.4);
+                gl.glDisable (GL2.GL_CLIP_PLANE0);
+                
+                gl.glPopMatrix();
+        
+        gl.glPopMatrix();
     }
-
 }
