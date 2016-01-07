@@ -63,7 +63,25 @@ public class Terrain {
      * Returns the height of the terrain at a specific x and y.
      */
     private double getTerrainHeight(double x, double y) {
-        return (-2 * Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y)) - 2;
+        if(x > - 15 && x < 15 && y > - 15 && y < 15 )
+        {
+            double test = -1 * Math.abs(-2* Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y));
+            return test;
+            
+            
+        }
+        else if(x > - 25 && x < 25 && y > - 25 && y < 25 )
+        {
+            double test = 0.6 * Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y);
+            return test;
+            
+            
+        }
+        else
+        {
+            double test = Math.abs(-6* Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y));
+            return test;
+        }
     }
 
     /**
@@ -117,6 +135,8 @@ public class Terrain {
         gl.glBindTexture(GL_TEXTURE_1D, 0);
 
         gl.glPushMatrix();
+         // Draw the gray transparent surface
+            setMaterial(Material.WATER, gl);
         sky.enable(gl);
         sky.bind(gl);
         gl.glBegin(GL_QUADS);
@@ -162,8 +182,21 @@ public class Terrain {
         gl.glTexCoord2f(0, 1);
         gl.glVertex3d(-40, 40, -5);
         gl.glEnd();
+        
+        gl.glBegin(GL_QUADS);
+        gl.glTexCoord2f(0, 0);
+        gl.glVertex3d(-xSize, -ySize, 40);
+        gl.glTexCoord2f(1, 0);
+        gl.glVertex3d(-xSize, ySize, 40);
+        gl.glTexCoord2f(1, 1);
+        gl.glVertex3d(xSize, ySize, 40);
+        gl.glTexCoord2f(0, 1);
+        gl.glVertex3d(xSize, -ySize, 40);
+        gl.glEnd();
         gl.glPopMatrix();
         sky.disable(gl);
+        // Draw the gray transparent surface
+            setMaterial(Material.BLACK, gl);
     }
 
     public void drawTexture(GL2 gl) {
