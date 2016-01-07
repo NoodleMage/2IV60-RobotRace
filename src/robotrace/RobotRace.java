@@ -1,5 +1,6 @@
 package robotrace;
 
+import com.jogamp.opengl.util.texture.Texture;
 import java.util.Random;
 import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
@@ -41,25 +42,26 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
  */
 public class RobotRace extends Base {
 
-    private final Double step = 0d;
-    
-    private int luckCount;
+    private Double step = 0d;
 
-    private final Double[] steps = {0.0, 0.0, 0.0, 0.0};
-    
-    private final Boolean[] hasLuck = {false,false,false,false};
-    
-    private static final int MOTOR_LANE = 7;
-    
+    private int luckCount = 0;
+
+    private Double[] steps = {0.0, 0.0, 0.0, 0.0};
+
+    private Boolean[] hasLuck = {false, false, false, false};
+
+    private static int MOTOR_LANE = 7;
+
     private Vector motorPosition;
-    
-    private Double N = 10000d;
-    private final Double speed = 2.0;
 
+    private Double N = 10000d;
+    private Double speed = 0.0;
+
+    private Texture finish;
+    private Texture sky;
     /**
      * Array of the four robots.
      */
-    
     private final Robot[] robots;
 
     /**
@@ -82,7 +84,6 @@ public class RobotRace extends Base {
      * terrain.
      */
     public RobotRace() {
-        this.luckCount = 0;
 
         // Create a new array of four robots
         robots = new Robot[4];
@@ -109,19 +110,87 @@ public class RobotRace extends Base {
         raceTracks[0] = new RaceTrack();
 
         // O-track
-        raceTracks[1] = new RaceTrack(new Vector[]{ /* add control points like:
-            new Vector(10, 0, 1), new Vector(10, 5, 1), new Vector(5, 10, 1),
-            new Vector(..., ..., ...), ...
-         */});
+        raceTracks[1] = new RaceTrack(new Vector[]{new Vector(-15, 0, 1),
+            new Vector(-15, 15, 1),
+            new Vector(15, 15, 1),
+            new Vector(15, 0, 1),
+            new Vector(15, -15, 1),
+            new Vector(-15, -15, 1),
+            new Vector(-15, 0, 1)});
 
         // L-track
-        raceTracks[2] = new RaceTrack(new Vector[]{ /* add control points */});
-
+        raceTracks[2] = new RaceTrack(new Vector[]{
+            new Vector(4, 11, 1),
+            new Vector(4, 10, 1),
+            new Vector(4, 9, 1),
+            new Vector(4, 7, 1),
+            new Vector(4, 2, 1),
+            new Vector(5, 0, 1),
+            new Vector(13, 0, 1),
+            new Vector(16, 0, 1),
+            new Vector(18, 0, 1),
+            new Vector(20, 0, 1),
+            new Vector(23, 0, 1),
+            new Vector(23, -5, 1),
+            new Vector(20, -5, 2),
+            new Vector(17, -5, 2),
+            new Vector(10, -5, 1),
+            new Vector(1, -5, 1),
+            new Vector(-1, -5, 1),
+            new Vector(-3, -3, 1),
+            new Vector(-3, -1, 1),
+            new Vector(-3, 1, 1),
+            new Vector(-3, 5, 1),
+            new Vector(-3, 10, 1),
+            new Vector(-3, 13, 1),
+            new Vector(-1, 15, 1),
+            new Vector(2, 15, 1),
+            new Vector(4, 15, 1),
+            new Vector(4, 12, 1),
+            new Vector(4, 11, 1),});
         // C-track
-        raceTracks[3] = new RaceTrack(new Vector[]{ /* add control points */});
+        raceTracks[3] = new RaceTrack(new Vector[]{
+            new Vector(-5, 10, 1),
+            new Vector(0, 15, 1),
+            new Vector(10, 15, 1),
+            new Vector(15, 10, 1),
+            new Vector(16, 9, 1),
+            new Vector(16, 6, 1),
+            new Vector(15, 5, 1),
+            new Vector(12.5, 2.5, 1),
+            new Vector(7.5, 7.5, 1),
+            new Vector(5, 5, 1),
+            new Vector(2.5, 2.5, 1),
+            new Vector(2.5, -2.5, 1),
+            new Vector(5, -5, 1),
+            new Vector(7.5, -7.5, 1),
+            new Vector(12.5, -2.5, 1),
+            new Vector(15, -5, 1),
+            new Vector(16, -6, 1),
+            new Vector(16, -9, 1),
+            new Vector(15, -10, 1),
+            new Vector(10, -15, 1),
+            new Vector(0, -15, 1),
+            new Vector(-5, -10, 1),
+            new Vector(-10, -5, 1),
+            new Vector(-10, 5, 1),
+            new Vector(-5, 10, 1),});
 
         // Custom track
-        raceTracks[4] = new RaceTrack(new Vector[]{ /* add control points */});
+        raceTracks[4] = new RaceTrack(new Vector[]{
+            new Vector(-7.5, 0, 8),
+            new Vector(-7.5, 7.5, 8),
+            new Vector(7.5, 7.5, 8),
+            new Vector(7.5, 0, 8),
+            new Vector(7.5, -7.5, 8),
+            new Vector(-7.5, -7.5, 8),
+            new Vector(-7.5, 0, 1),
+            new Vector(-7.5, 7.5, 1),
+            new Vector(-22.5, 7.5, 1),
+            new Vector(-22.5, 0, 1),
+            new Vector(-22.5, -15, 1),
+            new Vector(-7.5, -15, 8),
+            new Vector(-7.5, 0, 8),});
 
         // Initialize the terrain
         terrain = new Terrain();
@@ -155,6 +224,8 @@ public class RobotRace extends Base {
         brick = loadTexture("brick.jpg");
         head = loadTexture("head.jpg");
         torso = loadTexture("torso.jpg");
+        finish = loadTexture("finish.jpg");
+        sky = loadTexture("sky.jpg");
     }
 
     /**
@@ -183,20 +254,19 @@ public class RobotRace extends Base {
         // For camera modes 1 to 4, determine which robot to focus on.
         int best = 0;
         int worst = 0;
-        
+
         for (int i = 0; i < 4; i++) {
-            if (steps[i] > steps[best]){
+            if (steps[i] > steps[best]) {
                 best = i;
             }
-            if (steps[i] < steps[worst]){
+            if (steps[i] < steps[worst]) {
                 worst = i;
             }
         }
-        
-        
-            motorPosition = raceTracks[gs.trackNr].getLanePoint(MOTOR_LANE, steps[best] / N);
-        
-        camera.update(gs, robots[best],robots[worst],motorPosition);
+
+        motorPosition = raceTracks[gs.trackNr].getLanePoint(MOTOR_LANE, steps[best] / N);
+
+        camera.update(gs, robots[best], robots[worst], motorPosition);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
@@ -209,7 +279,7 @@ public class RobotRace extends Base {
      */
     @Override
     public void drawScene() {
-        
+
         // Background color.
         gl.glClearColor(1f, 1f, 1f, 0f);
 
@@ -229,8 +299,7 @@ public class RobotRace extends Base {
         // create array of speeds variations
         Double[] speeds = new Double[4];
 //        System.out.println(luckCount);
-        if (luckCount >= 250)
-        {
+        if (luckCount >= 250) {
             luckCount = 0;
             for (int i = 0; i < 4; i++) {
                 Random rand = new Random();
@@ -239,13 +308,10 @@ public class RobotRace extends Base {
         }
 
         for (int i = 0; i < 4; i++) {
-            if (hasLuck[i])
-            {   
+            if (hasLuck[i]) {
                 Random rand = new Random();
-                speeds[i] = speed + (rand.nextDouble()*4);
-            }
-            else
-            {
+                speeds[i] = speed + (rand.nextDouble() * 4);
+            } else {
                 Random rand = new Random();
                 speeds[i] = speed + rand.nextDouble();
             }
@@ -254,9 +320,9 @@ public class RobotRace extends Base {
 //         Get the position and direction of the first robot.
         for (int i = 0; i < 4; i++) {
             robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, steps[i] / N);
-            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, steps[i]/N);
-           // System.out.println(raceTracks[gs.trackNr].getLanePoint(i,steps[i]/N).x);
-           // camera.update(gs, robots[i]);
+            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, steps[i] / N);
+            // System.out.println(raceTracks[gs.trackNr].getLanePoint(i,steps[i]/N).x);
+            // camera.update(gs, robots[i]);
 //           System.out.println("Bot: " + i + " speed: " + steps[i]);
             steps[i] += speeds[i];
             luckCount++;
@@ -264,28 +330,44 @@ public class RobotRace extends Base {
                 steps[i] = 0d;
             }
         }
-        
-        
+
         //Draw robots
         gl.glPushMatrix();
 
         for (int i = 0; i < 4; i++) {
-                gl.glPushMatrix();
-                gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
-                double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
-                // Rotate bender to stand perpendicular to lange tangent
-                gl.glRotated(Math.toDegrees(angle)-90, 0, 0, 1);
-                robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
-                gl.glPopMatrix();
+            gl.glPushMatrix();
+            gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
+            //double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
+
+            // Calculate the dot product between the tangent and the Y axis.
+            double dot = robots[i].direction.dot(Vector.Y);
+
+            //Divide by length of y-axis and direction to get cos
+            double cosangle = dot / (robots[i].direction.length() * Vector.Y.length());
+
+            //Check if x is negative of possitive     
+            double angle;
+            if (robots[i].direction.x() >= 0) {
+                angle = -Math.acos(cosangle);
+            } else {
+                angle = Math.acos(cosangle);
+            }
+            gl.glRotated(Math.toDegrees(angle), 0, 0, 1);
+
+            // Rotate bender to stand perpendicular to lange tangent
+            // gl.glRotated(Math.toDegrees(angle) - 90, 0, 0, 1);
+            robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
+            gl.glPopMatrix();
         }
 
         gl.glPopMatrix();
 
         // Draw the race track.
-        raceTracks[gs.trackNr].draw(gl, glu, glut);
+        raceTracks[gs.trackNr].draw(gl, glu, glut, track, brick, finish);
 
         // Draw the terrain.
-        terrain.draw(gl, glu, glut);
+//        terrain.draw(gl, glu, glut);
+        terrain.draw(gl, glut, sky);
     }
 
     /**
