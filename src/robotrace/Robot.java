@@ -103,70 +103,13 @@ class Robot {
 
         // Draw the bodyParts
         for (BodyPart p : parts) {
-            p.Draw();
+            if (stickFigure) {
+               p.Draw(); 
+            }else{
+                p.DrawStick();
+            }       
         }
 
-        gl.glPopMatrix();
-    }
-
-    private void drawStick() {
-        // Draw the Body
-        gl.glPushMatrix();
-        gl.glScaled(0.1, 0.1, 1);
-        glut.glutSolidCube((float) bodyHeight);
-        gl.glPopMatrix();
-
-        // Draw the head
-        gl.glPushMatrix();
-        gl.glTranslated(0, 0, bodyHeight * 0.75);
-        glut.glutSolidSphere(bodyHeight * 0.3, 30, 30);
-        gl.glPopMatrix();
-
-        // draw the shoulders
-        gl.glPushMatrix();
-        gl.glTranslated(0, 0, bodyHeight * 0.5);
-        gl.glScaled(1, 0.1, 0.1);
-        glut.glutSolidCube((float) bodyWidth);
-        gl.glPopMatrix();
-
-        // Draw the arms
-        gl.glPushMatrix();
-        gl.glTranslated(bodyWidth * 0.5, 0, bodyHeight * 0.25);
-        gl.glScaled(0.1, 0.1, 1);
-        glut.glutSolidCube((float) (bodyHeight * 0.5));
-        gl.glPopMatrix();
-
-        gl.glPushMatrix();
-        gl.glTranslated(-bodyWidth * 0.5, 0, bodyHeight * 0.25);
-        gl.glScaled(0.1, 0.1, 1);
-        glut.glutSolidCube((float) (bodyHeight * 0.5));
-        gl.glPopMatrix();
-
-        //Draw the hip joint
-        gl.glPushMatrix();
-        gl.glTranslated(0, 0, -bodyHeight * .5);
-        gl.glScaled(1, 0.1, .1);
-        glut.glutSolidCube((float) (bodyWidth));
-        gl.glPopMatrix();
-
-        // Draw the special part for (childish) comedic purposes!!!!!! 
-        gl.glPushMatrix();
-        gl.glTranslated(0, 0, -bodyHeight * .6);
-        gl.glScaled(0.1, 0.1, 1);
-        glut.glutSolidCube((float) (bodyHeight * 0.25));
-        gl.glPopMatrix();
-
-        // Draw legs
-        gl.glPushMatrix();
-        gl.glTranslated(bodyWidth * .5, 0, -bodyHeight * .75);
-        gl.glScaled(0.1, 0.1, 1);
-        glut.glutSolidCube((float) (bodyHeight * 0.5));
-        gl.glPopMatrix();
-
-        gl.glPushMatrix();
-        gl.glTranslated(-bodyWidth * .5, 0, -bodyHeight * .75);
-        gl.glScaled(0.1, 0.1, 1);
-        glut.glutSolidCube((float) (bodyHeight * 0.5));
         gl.glPopMatrix();
     }
 
