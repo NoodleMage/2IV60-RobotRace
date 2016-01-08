@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
@@ -18,26 +13,72 @@ import java.util.Random;
 /**
  *
  * @author Indi Nijhof
+ * “ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live. ” 
  */
 public abstract class BodyPart {
-
-    // Declarations the bodyparts material objects
+    /**
+     *  The bodypart's material
+     */
     public Material material;
+
+    /**
+     *  The bodypart's accent material
+     */
     public Material accent;
 
-    // Declarations for body stats
+    /**
+     *  Length of the body
+     */
     public double lenght;
+
+    /**
+     *  Width of the body
+     */
     public double width;
+
+    /**
+     *  Radius of the body
+     */
     public double bodyWidthRadius;
+
+    /**
+     *  Width of the head
+     */
     public double headWidth;
+
+    /**
+     *  Height (length) of the face
+     */
     public double faceHeight;
+
+    /**
+     *  Radius of the forehead
+     */
     public double foreheadRadius;
+
+    /**
+     *  Radius of th antenna base
+     */
     public double antennaBaseRadius;
+
+    /**
+     *  Radius of the limbs
+     */
     public double limbRadius;
+
+    /**
+     *  Length of the arm (not whole but upper|lower)
+     */
     public double armLength;
 
-    // Declarations for drawing resolution
+    /**
+     *  Number of stacks when drawing (resolution)
+     */
     public final int stacks = 30;
+
+    /**
+     *  Number of slices when drawing (resolution)
+     */
     public final int slices = 30;
 
     // Declarations for neccesary OpenGL library's
@@ -45,9 +86,15 @@ public abstract class BodyPart {
     public GLU glu;
     public GLUT glut;
 
-    // Declaration for the animation ticker
+
+    /**
+     * Declaration for the animation ticker
+     */
     public float tAnim;
 
+    /**
+     * Object used for generation of pseudorandoms
+     */
     public Random rand = new Random();
 
     /**
@@ -63,7 +110,7 @@ public abstract class BodyPart {
     }
 
     /**
-     *
+     *  Draws a cylinder
      * @param radius The radius of the object
      * @param height The height of the object
      */
@@ -72,7 +119,7 @@ public abstract class BodyPart {
     }
 
     /**
-     *
+     *  Draws a circle
      * @param radius Radius of the circle
      */
     public void SolidCircle(Double radius) {
@@ -80,7 +127,7 @@ public abstract class BodyPart {
     }
 
     /**
-     *
+     *  Draws a solidSphere
      * @param radius The radius of the sphere
      */
     public void SolidSphere(Double radius) {
@@ -88,7 +135,7 @@ public abstract class BodyPart {
     }
 
     /**
-     *
+     *  Draws a cone
      * @param radius The cones base radius
      * @param height The cones height
      */
@@ -97,7 +144,7 @@ public abstract class BodyPart {
     }
 
     /**
-     *
+     *  Sets the parts material
      * @param material Set material determined by given robot type
      */
     public void setMaterial(Material material) {
@@ -111,70 +158,97 @@ class Head extends BodyPart {
 
     @Override
     public void DrawStick() {
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
-        // Draw the face (cylinder without hemisphere)
+        // Translate for position on top of neck
         gl.glTranslated(0, 0, this.lenght + (this.faceHeight / 2));
-
+        // Draw the head
         this.SolidSphere(foreheadRadius);
 
-        //Set material to original
+        // Set material to original
         this.setMaterial(this.material);
+        
+        // Pop it like its hot
         gl.glPopMatrix();
     }
 
     @Override
     public void Draw() {
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
-        // Draw the face (cylinder without hemisphere)
+        // Translate for face to be ontop of neck
         gl.glTranslated(0, 0, this.lenght);
+        // Draw the face (cylinder without hemisphere)
         this.SolidCylinder(foreheadRadius, faceHeight);
 
-        // Draw the forehead (the hemishpere on top of face cylinder).
+        // Translate for forehead to be (semi) ontop of face
         gl.glTranslated(0, 0, faceHeight);
+        // Draw the forehead (the hemishpere on top of face cylinder).
         this.SolidSphere(foreheadRadius);
 
-        //Draw antenna-base
+        // Translate to be ontop of head
         gl.glTranslated(0, 0, foreheadRadius);
+        // Draw a cone to be the antenna
         this.SolidCone(antennaBaseRadius * 0.75, antennaBaseRadius * 6);
+        // Draw a (hemi)sphere
         this.SolidSphere(antennaBaseRadius);
+        // Translate to top of antenna cone
         gl.glTranslated(0, 0, antennaBaseRadius * 5);
+        // Draw the top sphere of the antenna
         this.SolidSphere(antennaBaseRadius / 2);
 
-        // Draw the eyesocket
+        // Translate to place eyesocket on face
         gl.glTranslated(0, foreheadRadius * 1.5, -faceHeight * .8);
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
+        // Rotate over x-axis to place perpendicular on face
         gl.glRotated(90, 1, 0, 0);
+        // Scale to form an elipsoid
         gl.glScaled(1, 0.5, 0.5);
+        // Draw the eyesocket
         this.SolidCylinder(foreheadRadius, faceHeight);
+        
+        // Pop it like its hot
         gl.glPopMatrix();
 
         //Draw the eyes
         int[] t = new int[]{1, -1}; //t for translation
+        
         for (int i = 0; i < 2; i++) {
+            // Push me, and then just touch me, till I can't get my..satisfaction
             gl.glPushMatrix();
-
+            
+            // Translate as to not create a cyclops
             gl.glTranslated((headWidth * .2) * t[i], .3, 0);
+            
+            // Rotate over x-axis for eye (cylinder) to be perpendicular to face
             gl.glRotated(90, 1, 0, 0);
 
             //Set material to white
             this.setMaterial(Material.WHITE);
-
+            
+            // Draw the eye (eye of the tiger|eye of the beholder)
             SolidCylinder(foreheadRadius * .4, foreheadRadius);
-
+            
+            // Translate to centre the pupil
             gl.glTranslated(0, 0, -.25);
 
             //Set material to black
             this.setMaterial(Material.BLACK);
 
-            //glut.glutSolidCylinder(foreheadRadius*.2, foreheadRadius, slices, stacks);
+            // Draw the pupil
             glut.glutSolidCube((float) (foreheadRadius * .2));
+            
+            // Pop it like it's hot
             gl.glPopMatrix();
         }
 
         //Set material to original
         this.setMaterial(this.material);
+        
+        // Pop it like it's hot
         gl.glPopMatrix();
     }
 }
@@ -183,25 +257,33 @@ class Body extends BodyPart {
 
     @Override
     public void DrawStick() {
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
-
+        
+        // Draw the body
         this.SolidCylinder(this.bodyWidthRadius / 20, this.lenght);
-
+        
+        // Translate for neck to be ontop of body
         gl.glTranslated(0, 0, this.lenght);
 
         // Draw the "neck"
         this.SolidCylinder(this.bodyWidthRadius / 20, this.lenght * 0.3);
 
+        // Pop it like it's hot
         gl.glPopMatrix();
     }
 
     @Override
     public void Draw() {
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
+        // Draw circle for bots ass
         this.SolidCylinder(3.0, 0.0);
 
+        // Define values for clipping pane
         double[] eqn = {0.0, 0.0, 1.0, 0.0};
         //Create clip plane and enable plane
         gl.glClipPlane(GL2.GL_CLIP_PLANE0, eqn, 0);
@@ -210,35 +292,42 @@ class Body extends BodyPart {
         //Enable plane to cut of cone
         gl.glEnable(GL2.GL_CLIP_PLANE0);
 
-        //Draw solidCone
+        //Draw the body (cone)
         this.SolidCone(4.5, -this.lenght * 3);
 
         //Disable plane (otherwise all shapes are affected)
         gl.glDisable(GL2.GL_CLIP_PLANE0);
 
+        // Pop it like it's hot
         gl.glPopMatrix();
 
+        // Translate for neck to be ontop of body
         gl.glTranslated(0, 0, this.lenght);
 
         // Draw the "neck"
         this.SolidCone(this.width / 2, this.lenght * 0.3);
 
+        // Pop it like it's hot
         gl.glPopMatrix();
     }
 }
 
 class Arm extends BodyPart {
-
-    int side;
-
-    int upperAnim = 0;
-    int lowerAnim = 0;
-    int upperstep;
-    int lowerstep;
+    // Left | Right
+    public int side;
+    
+    // Angle of the upper arm with respect to shoulder joint
+    private int upperAnim = 0;
+    // Angle of lowerarm with respect to upper arm
+    private int lowerAnim = 0;
+    
+    // Animation step (speed?) for te rotations
+    private int upperstep;
+    private int lowerstep;
 
     public Arm(int s) {
-        //upperAnim += rand.nextInt(20);
         side = s;
+        // modify so left and right arm are not the same
         upperstep = 8 * -s;
         lowerstep = 5;
     }
@@ -249,19 +338,23 @@ class Arm extends BodyPart {
         upperAnim += upperstep;
         lowerAnim += lowerstep;
 
+        // switch arm sway direction when needed
         if (abs(upperAnim) >= 80 && upperAnim >= 0 || upperAnim < 0 && abs(upperAnim) >= 45) {
             upperstep = upperstep * -1;
         }
 
+        // switch arm sway direction when needed
         if (lowerAnim == 80 || lowerAnim == 0) {
             lowerstep = lowerstep * -1;
         }
-
+        
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
         //Translate for correct position on body
         gl.glTranslated(0, 0, this.lenght * .9);
-
+        
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
         //Set accent color
@@ -297,7 +390,9 @@ class Arm extends BodyPart {
         //Set original color
         this.setMaterial(this.material);
 
+        // Pop it like it's hot
         gl.glPopMatrix();
+        // Pop it like it's hot
         gl.glPopMatrix();
     }
 
@@ -307,19 +402,23 @@ class Arm extends BodyPart {
         upperAnim += upperstep;
         lowerAnim += lowerstep;
 
+        // switch arm sway direction when needed
         if (abs(upperAnim) >= 80 && upperAnim >= 0 || upperAnim < 0 && abs(upperAnim) >= 45) {
             upperstep = upperstep * -1;
         }
 
+        // switch arm sway direction when needed
         if (lowerAnim == 80 || lowerAnim == 0) {
             lowerstep = lowerstep * -1;
         }
 
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
         //Translate for correct position on body
         gl.glTranslated(0, 0, this.lenght * .9);
 
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
         //Set accent color
@@ -360,10 +459,12 @@ class Arm extends BodyPart {
 
         // Draw hand (cone)
         this.SolidCone(this.bodyWidthRadius / 3, -this.lenght * .3);
-        // Close the hand cone
+        // Close the hand cone | create palm 
         this.SolidCircle(this.bodyWidthRadius / 3);
 
+        // Pop it like it's hot
         gl.glPopMatrix();
+        // Pop it like it's hot
         gl.glPopMatrix();
     }
 }
@@ -388,6 +489,7 @@ class Leg extends BodyPart {
             this.step = this.step * -1;
         }
 
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
         //Set accent color
@@ -422,14 +524,16 @@ class Leg extends BodyPart {
             this.step = this.step * -1;
         }
 
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
-        //gl.glPushMatrix();
         //Set accent color
         this.setMaterial(this.accent);
 
         //Translate legs for correct position to body
         gl.glTranslated((this.width * .2) * this.side, 0, this.limbRadius);
+        
+        // Push me, and then just touch me, till I can't get my..satisfaction
         gl.glPushMatrix();
 
         //Draw rotated leg
