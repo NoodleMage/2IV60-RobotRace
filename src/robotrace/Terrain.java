@@ -37,7 +37,7 @@ public class Terrain {
      * Number of segments to be used to draw the terrain (per dimension per
      * direction).
      */
-    private int SEGMENTS = 100;
+    private int SEGMENTS = 50;
 
     /**
      * First x of the terrain.

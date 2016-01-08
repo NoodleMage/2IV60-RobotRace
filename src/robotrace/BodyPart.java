@@ -64,6 +64,10 @@ public abstract class BodyPart {
         glut.glutSolidCylinder(radius, height, slices, stacks);
     }
     
+    public void SolidCircle(Double radius){
+        glut.glutSolidCylinder(radius, 0, slices, stacks);
+    }
+    
     /**
      *
      * @param radius The radius of the sphere
@@ -100,25 +104,25 @@ class Head extends BodyPart {
         
         // Draw the face (cylinder without hemisphere)
         gl.glTranslated(0, 0, this.lenght);
-        SolidCylinder(foreheadRadius, faceHeight);
+        this.SolidCylinder(foreheadRadius, faceHeight);
         
         // Draw the forehead (the hemishpere on top of face cylinder).
         gl.glTranslated(0, 0, faceHeight);
-        SolidSphere(foreheadRadius);
+        this.SolidSphere(foreheadRadius);
         
         //Draw antenna-base
         gl.glTranslated(0, 0, foreheadRadius);
-        SolidCone(antennaBaseRadius * 0.75, antennaBaseRadius * 6);
-        SolidSphere(antennaBaseRadius);
+        this.SolidCone(antennaBaseRadius * 0.75, antennaBaseRadius * 6);
+        this.SolidSphere(antennaBaseRadius);
         gl.glTranslated(0, 0, antennaBaseRadius * 5);
-        SolidSphere(antennaBaseRadius / 2);
+        this.SolidSphere(antennaBaseRadius / 2);
         
         // Draw the eyesocket
         gl.glTranslated(0, foreheadRadius * 1.5, -faceHeight * .8);
         gl.glPushMatrix();
         gl.glRotated(90, 1, 0, 0);
         gl.glScaled(1, 0.5, 0.5);
-        SolidCylinder(foreheadRadius, faceHeight);
+        this.SolidCylinder(foreheadRadius, faceHeight);
         gl.glPopMatrix();
 
         //Draw the eyes
@@ -157,9 +161,9 @@ class Body extends BodyPart {
         gl.glPushMatrix();
         gl.glPushMatrix();
         
-        SolidCylinder(3.0, 0.0);
+        this.SolidCylinder(3.0, 0.0);
 
-        gl.glPushMatrix();
+        //gl.glPushMatrix();
         
         double[] eqn = {0.0, 0.0, 1.0, 0.0};
         //Create clip plane and enable plane
@@ -170,19 +174,19 @@ class Body extends BodyPart {
         gl.glEnable(GL2.GL_CLIP_PLANE0);
 
         //Draw solidCone
-        SolidCone(4.5, -this.lenght * 3);
+        this.SolidCone(4.5, -this.lenght * 3);
         
         //Disable plane (otherwise all shapes are affected)
         gl.glDisable(GL2.GL_CLIP_PLANE0);
         
-        gl.glPopMatrix();
+        //gl.glPopMatrix();
 
         gl.glPopMatrix();
 
         gl.glTranslated(0, 0, this.lenght);
         
         // Draw the "neck"
-        SolidCone(this.width / 2, this.lenght * 0.3);
+        this.SolidCone(this.width / 2, this.lenght * 0.3);
         
         gl.glPopMatrix();
     }
@@ -226,37 +230,45 @@ class Arm extends BodyPart {
         gl.glPushMatrix();
         
         //Set accent color
-        setMaterial(this.accent);
+        this.setMaterial(this.accent);
         
         //Translate to correct postition next to body
-        gl.glTranslated((this.width * .5) * side, 0, 0);
+        gl.glTranslated((this.width * .5) * this.side, 0, 0);
         
-        //Rotate arm
-        gl.glRotated(170 * side, 0, 1, 0);
-        gl.glRotated(-upperAnim, 1, 0, 0);
+        //Rotate over y-axis to offset from the body
+        gl.glRotated(170 * this.side, 0, 1, 0);
+        
+        // Animate swaying of uppe arm
+        gl.glRotated(-this.upperAnim, 1, 0, 0);
         
         //Draw shoulder
-        SolidSphere(this.limbRadius);
+        this.SolidSphere(this.limbRadius);
         
         // Draw upper arm
-        SolidCylinder(this.limbRadius, this.armLength);
+        this.SolidCylinder(this.limbRadius, this.armLength);
         
-        // Draw elbow joint
+        // Translate for joint to be at end of upper arm
         gl.glTranslated(0, 0, this.armLength);
-        SolidSphere(this.limbRadius);
         
-        // Draw lower arm
+        // Draw the joint
+        this.SolidSphere(this.limbRadius);
+        
+        // Set rotation of lower arm
         gl.glRotated(-lowerAnim, 1, 0, 0);
-        SolidCylinder(this.limbRadius, this.armLength);
         
-        //Translate for hand position
+        // Draw the lower arm
+        this.SolidCylinder(this.limbRadius, this.armLength);
+        
+        // Translate for hand position
         gl.glTranslated(0, 0, (this.lenght * .80)/2);
 
         //Set original color
-        setMaterial(this.material);
+        this.setMaterial(this.material);
 
-        //Draw hand
-        SolidCone(this.bodyWidthRadius / 3, -this.lenght * .3);
+        // Draw hand (cone)
+        this.SolidCone(this.bodyWidthRadius / 3, -this.lenght * .3);
+        // Close the hand cone
+        this.SolidCircle(this.bodyWidthRadius / 3);
         
         gl.glPopMatrix();
         gl.glPopMatrix();
@@ -276,44 +288,48 @@ class Leg extends BodyPart {
 
     @Override
     public void Draw() {
-        this.angle += step;
+        this.angle += this.step;
         
-        if (abs(angle) == 40){
-            step = step * -1;
+        if (abs(this.angle) == 40){
+            this.step = this.step * -1;
         }
         
         gl.glPushMatrix();        
         
         //gl.glPushMatrix();
                  //Set accent color
-                setMaterial(this.accent);
+                this.setMaterial(this.accent);
                 
                 //Translate legs for correct position to body
-                gl.glTranslated((this.width*.2)*side, 0, this.limbRadius);
+                gl.glTranslated((this.width*.2)*this.side, 0, this.limbRadius);
                 gl.glPushMatrix();
                 
                 //Draw rotated leg
-                gl.glRotated(-7*side, 0, 1, 0);
+                gl.glRotated(-7*this.side, 0, 1, 0);
                 
                 // Animate the leg swaying
-                gl.glRotated(angle, 1, 0, 0);
+                gl.glRotated(this.angle, 1, 0, 0);
                 
-                SolidCylinder(this.limbRadius, -this.lenght*.8);
+                // Draw the leg
+                this.SolidCylinder(this.limbRadius, -this.lenght*.8);
                 //gl.glPopMatrix();
                 
                 gl.glTranslated(0, 0, -this.lenght * 0.80);
                 
                 //Set original color
-                setMaterial(this.material);
+                this.setMaterial(this.material);
                 
-                //Create clipping plane for hemisphere feet
+                //Create clipping plane for hemisphere foot
                 double[] eqn = {0.0, 0.0, 1.0, 0.0};
                 gl.glClipPlane (GL2.GL_CLIP_PLANE0, eqn,0);
                 gl.glEnable (GL2.GL_CLIP_PLANE0);
                 
-                //Draw feet
-                SolidSphere(bodyWidthRadius*.4);
+                //Draw foot
+                this.SolidSphere(this.bodyWidthRadius*.4);
                 gl.glDisable (GL2.GL_CLIP_PLANE0);
+                
+                // Draw foot sole
+                this.SolidCircle(this.bodyWidthRadius*.4);
                 
                 gl.glPopMatrix();
         
