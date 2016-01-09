@@ -5,6 +5,7 @@ import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Color;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Random;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_LINEAR;
 import static javax.media.opengl.GL.GL_RGBA;
@@ -28,6 +29,13 @@ import javax.media.opengl.GL2;
  */
 public class Terrain {
 
+    private static final int AMOUNT_TREES = 18;
+
+    private final int[] tree_heights;
+    private final int[] tree_x;
+    private final int[] tree_y;
+    private final double[] tree_radius;
+
     /**
      * Whether the display list for the terrain has been set up.
      */
@@ -37,7 +45,7 @@ public class Terrain {
      * Number of segments to be used to draw the terrain (per dimension per
      * direction).
      */
-    private int SEGMENTS = 100;
+    private int SEGMENTS = 50;
 
     /**
      * First x of the terrain.
@@ -62,47 +70,40 @@ public class Terrain {
     /**
      * Returns the height of the terrain at a specific x and y.
      */
-    private double getTerrainHeight(double x, double y) {
-        if(x > - 15 && x < 15 && y > - 15 && y < 15 )
-        {
-            double test = -1 * Math.abs(-2* Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y));
+    private double heightAt(double x, double y) {
+        if (x > - 25 && x < 25 && y > - 25 && y < 25) {
+            double test = (-1 * Math.abs(-1.5 * Math.cos(0.3 * x + 0.15 * y) + 0.4 * Math.cos(x - 0.5 * y)));
             return test;
-            
-            
-        }
-        else if(x > - 25 && x < 25 && y > - 25 && y < 25 )
-        {
-            double test = 0.6 * Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y);
-            return test;
-            
-            
-        }
-        else
-        {
-            double test = Math.abs(-6* Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y));
+        } else {
+            double test = Math.abs(-6 * Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y));
             return test;
         }
+        //return -0.6* Math.cos(0.3 * x + 0.15 * y) + 0.4 * Math.cos(x - 0.5 * y);
     }
 
     /**
      * The colors for the 1D texture
      */
-    private Color[] textureColors = new Color[]{
-        Color.BLUE,
-        Color.YELLOW,
-        Color.GREEN
-    };
+    private final Vector[] textureColors = new Vector[]{
+        new Vector(Color.BLUE.getRed() / 255, Color.BLUE.getGreen() / 255, Color.BLUE.getBlue() / 255),
+        new Vector(Color.YELLOW.getRed() / 255, Color.YELLOW.getGreen() / 255, Color.YELLOW.getBlue() / 255),
+        new Vector(Color.GREEN.getRed() / 255, Color.GREEN.getGreen() / 255, Color.GREEN.getBlue() / 255)};
 
     /**
      * The texid for the 1D texture
      */
-    private int texture;
+    private Texture1D texture;
 
     /**
      * Constructs the terrain. Terrain is in [-40,40], looks much better in
      * camera scale.
      */
     public Terrain() {
+        this.tree_heights = new int[AMOUNT_TREES];
+        this.tree_x = new int[AMOUNT_TREES];
+        this.tree_y = new int[AMOUNT_TREES];
+        this.tree_radius = new double[AMOUNT_TREES];
+
     }
 
     /**
@@ -112,31 +113,63 @@ public class Terrain {
         // If the display list has not been set up yet, create it
         if (!displayListTerrainSetUp) {
             // Create the texture
-            texture = create1DTexture(gl, textureColors);
-
-            // Draw the gray transparent surface
             setMaterial(Material.WATER, gl);
             gl.glBegin(GL_QUADS);
-            gl.glVertex3d(-40, -40, 2);
-            gl.glVertex3d(40, -40, 2);
-            gl.glVertex3d(40, 40, 2);
-            gl.glVertex3d(-40, 40, 2);
+            gl.glVertex3d(-40, -40, 0);
+            gl.glVertex3d(40, -40, 0);
+            gl.glVertex3d(40, 40, 0);
+            gl.glVertex3d(-40, 40, 0);
             gl.glEnd();
+            texture = new Texture1D(gl, textureColors);
             // Finish compiling the display list
             //       gl.glEndList();
             // Set set up boolean to true
+
+            Random random = new Random();
+
+            for (int i = 0; i < AMOUNT_TREES; i++) {
+                tree_heights[i] = random.nextInt(4) + 6;
+                
+            tree_radius[i] = (double) (random.nextInt(4) + 3) / 10;
+            
+            int negative = 0;
+            while (negative == 0)
+            {
+                negative = random.nextInt(3) -1;
+            }
+            
+            int negative2 = 0;
+            while (negative2 == 0)
+            {
+                negative2 = random.nextInt(3) -1;
+            }
+
+                tree_x[i] = negative * (random.nextInt(25) + 15);
+                tree_y[i] = negative2 * (random.nextInt(25) + 15);
+
+            }
+
             displayListTerrainSetUp = true;
+
         }
+
+        for (int i = 0; i < AMOUNT_TREES; i++) {
+
+            drawTree(gl, glut, tree_radius[i], tree_heights[i], tree_x[i], tree_y[i], heightAt(tree_x[i], tree_y[i]));
+        }
+
+        // Draw the gray transparent surface
+        setMaterial(Material.BLACK, gl);
         // Bind the terrain texture
-        gl.glBindTexture(GL_TEXTURE_1D, texture);
+        texture.bind(gl);
         // Execute the display list for the terrain
         drawTexture(gl);
         // Unbind the terrain texture
         gl.glBindTexture(GL_TEXTURE_1D, 0);
 
         gl.glPushMatrix();
-         // Draw the gray transparent surface
-            setMaterial(Material.WATER, gl);
+        // Draw the gray transparent surface
+        setMaterial(Material.WATER, gl);
         sky.enable(gl);
         sky.bind(gl);
         gl.glBegin(GL_QUADS);
@@ -171,8 +204,8 @@ public class Terrain {
         gl.glTexCoord2f(0, 1);
         gl.glVertex3d(-40, -40, -5);
         gl.glEnd();
-        
-         gl.glBegin(GL_QUADS);
+
+        gl.glBegin(GL_QUADS);
         gl.glTexCoord2f(0, 0);
         gl.glVertex3d(-40, -40, -5);
         gl.glTexCoord2f(1, 0);
@@ -182,7 +215,7 @@ public class Terrain {
         gl.glTexCoord2f(0, 1);
         gl.glVertex3d(-40, 40, -5);
         gl.glEnd();
-        
+
         gl.glBegin(GL_QUADS);
         gl.glTexCoord2f(0, 0);
         gl.glVertex3d(-xSize, -ySize, 40);
@@ -196,7 +229,7 @@ public class Terrain {
         gl.glPopMatrix();
         sky.disable(gl);
         // Draw the gray transparent surface
-            setMaterial(Material.BLACK, gl);
+        setMaterial(Material.BLACK, gl);
     }
 
     public void drawTexture(GL2 gl) {
@@ -210,10 +243,11 @@ public class Terrain {
                 double y1 = yBegin + ySize * yi / ((double) SEGMENTS);
                 double y2 = yBegin + ySize * (yi + 1) / ((double) SEGMENTS);
                 // Calculate the heights of the terrain
-                double f11 = getTerrainHeight(x1, y1);
-                double f12 = getTerrainHeight(x1, y2);
-                double f21 = getTerrainHeight(x2, y1);
-                double f22 = getTerrainHeight(x2, y2);
+                double f11 = heightAt(x1, y1);
+                double f12 = heightAt(x1, y2);
+                double f21 = heightAt(x2, y1);
+                double f22 = heightAt(x2, y2);
+
                 // Draw the first triangle between (x1, y1), (x1, y2) and (x2, y2)
                 {
                     // Create vector objects for points
@@ -255,42 +289,32 @@ public class Terrain {
         // Finish the triangle list
         gl.glEnd();
     }
+//
 
     public double getTextureCoordinateFromHeight(double height) {
         height = (height + 1) / 4 + 0.25;
+
         height = (height < 0.25) ? 0.25 : height;
         height = (height > 0.75) ? 0.75 : height;
         return height;
     }
 
-    /**
-     * Creates a new 1D - texture.
-     *
-     * @param gl
-     * @param colors
-     * @return the texture ID for the generated texture.
-     */
-    public int create1DTexture(GL2 gl, Color[] colors) {
-        gl.glDisable(GL_TEXTURE_2D);
-        gl.glEnable(GL_TEXTURE_1D);
-        int[] texid = new int[]{-1};
-        gl.glGenTextures(1, texid, 0);
-        ByteBuffer bb = ByteBuffer.allocateDirect(colors.length * 4).order(ByteOrder.nativeOrder());
-        for (Color color : colors) {
-            int pixel = color.getRGB();
-            bb.put((byte) ((pixel >> 16) & 0xFF)); // Red component
-            bb.put((byte) ((pixel >> 8) & 0xFF));  // Green component
-            bb.put((byte) (pixel & 0xFF));         // Blue component
-            bb.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component
+    public void drawTree(GL2 gl, GLUT glut, double radius, int height, double x, double y, double z) {
+        gl.glPushMatrix();
+        gl.glTranslated(x, y, z);
+
+        setMaterial(Material.WOOD, gl);
+        glut.glutSolidCylinder(radius, height - 0.75, 30, 30);
+        setMaterial(Material.GREEN, gl);
+        for (int i = 0; i < 3; i++) {
+            gl.glTranslated(0, 0, height / 3 - height / 12);
+            glut.glutSolidCone(radius * 4, height / 3, 30, 30);
+
         }
-        bb.flip();
-        gl.glBindTexture(GL_TEXTURE_1D, texid[0]);
-        gl.glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, colors.length, 0, GL_RGBA, GL_UNSIGNED_BYTE, bb);
-        gl.glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        gl.glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        gl.glBindTexture(GL_TEXTURE_1D, 0);
-        return texid[0];
+
+        gl.glPopMatrix();
     }
+//    
 
     private void setMaterial(Material material, GL2 gl) {
         //Set material determined by given robot type

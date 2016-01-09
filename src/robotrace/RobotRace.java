@@ -50,7 +50,7 @@ public class RobotRace extends Base {
 
     private Boolean[] hasLuck = {false, false, false, false};
 
-    private static int MOTOR_LANE = 7;
+    private static int MOTOR_LANE = 6;
 
     private Vector motorPosition;
 
@@ -120,34 +120,34 @@ public class RobotRace extends Base {
 
         // L-track
         raceTracks[2] = new RaceTrack(new Vector[]{
-            new Vector(4, 11, 1),
-            new Vector(4, 10, 1),
-            new Vector(4, 9, 1),
-            new Vector(4, 7, 1),
-            new Vector(4, 2, 1),
-            new Vector(5, 0, 1),
-            new Vector(13, 0, 1),
+            new Vector(0, 11, 1),
+            new Vector(0, 10, 1),
+            new Vector(0, 9, 1),
+            new Vector(0, 7, 1),
+            new Vector(0, 2, 1),
+            new Vector(1, 0, 1),
+            new Vector(9, 0, 1),
+            new Vector(12, 0, 1),
+            new Vector(14, 0, 1),
             new Vector(16, 0, 1),
-            new Vector(18, 0, 1),
-            new Vector(20, 0, 1),
-            new Vector(23, 0, 1),
-            new Vector(23, -5, 1),
-            new Vector(20, -5, 2),
-            new Vector(17, -5, 2),
-            new Vector(10, -5, 1),
-            new Vector(1, -5, 1),
-            new Vector(-1, -5, 1),
-            new Vector(-3, -3, 1),
-            new Vector(-3, -1, 1),
-            new Vector(-3, 1, 1),
-            new Vector(-3, 5, 1),
-            new Vector(-3, 10, 1),
-            new Vector(-3, 13, 1),
-            new Vector(-1, 15, 1),
-            new Vector(2, 15, 1),
-            new Vector(4, 15, 1),
-            new Vector(4, 12, 1),
-            new Vector(4, 11, 1),});
+            new Vector(19, 0, 1),
+            new Vector(19, -5, 1),
+            new Vector(16, -5, 2),
+            new Vector(13, -5, 2),
+            new Vector(6, -5, 1),
+            new Vector(-3, -5, 1),
+            new Vector(-5, -5, 1),
+            new Vector(-8, -3, 1),
+            new Vector(-8, -1, 1),
+            new Vector(-8, 1, 1),
+            new Vector(-8, 5, 1),
+            new Vector(-8, 10, 1),
+            new Vector(-8, 13, 1),
+            new Vector(-5, 15, 1),
+            new Vector(-2, 15, 1),
+            new Vector(0, 15, 1),
+            new Vector(0, 12, 1),
+            new Vector(0, 11, 1),});
         // C-track
         raceTracks[3] = new RaceTrack(new Vector[]{
             new Vector(-5, 10, 1),
@@ -178,19 +178,19 @@ public class RobotRace extends Base {
 
         // Custom track
         raceTracks[4] = new RaceTrack(new Vector[]{
-            new Vector(-7.5, 0, 8),
-            new Vector(-7.5, 7.5, 8),
-            new Vector(7.5, 7.5, 8),
-            new Vector(7.5, 0, 8),
-            new Vector(7.5, -7.5, 8),
-            new Vector(-7.5, -7.5, 8),
-            new Vector(-7.5, 0, 1),
-            new Vector(-7.5, 7.5, 1),
-            new Vector(-22.5, 7.5, 1),
-            new Vector(-22.5, 0, 1),
-            new Vector(-22.5, -15, 1),
-            new Vector(-7.5, -15, 8),
-            new Vector(-7.5, 0, 8),});
+            new Vector(-5, 0, 8),
+            new Vector(-5, 7.5, 8),
+            new Vector(10, 7.5, 8),
+            new Vector(10, 0, 8),
+            new Vector(10, -7.5, 8),
+            new Vector(-5, -7.5, 8),
+            new Vector(-5, 0, 1),
+            new Vector(-5, 7.5, 1),
+            new Vector(-20, 7.5, 1),
+            new Vector(-20, 0, 1),
+            new Vector(-20, -15, 1),
+            new Vector(-5, -15, 8),
+            new Vector(-5, 0, 8),});
 
         // Initialize the terrain
         terrain = new Terrain();
@@ -244,7 +244,7 @@ public class RobotRace extends Base {
         // calculate angle by dividing opposite by adjacent line
         Double angle = Math.atan2(gs.vDist, (0.5 * gs.vWidth));
         //Set perspective equal to angle in degrees 
-        glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.1 * gs.vDist, 10 * gs.vDist);
+        glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.025 * gs.vDist, 10 * gs.vDist);
 
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);
