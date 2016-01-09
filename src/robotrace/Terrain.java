@@ -3,19 +3,9 @@ package robotrace;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Color;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Random;
 import static javax.media.opengl.GL.GL_FRONT;
-import static javax.media.opengl.GL.GL_LINEAR;
-import static javax.media.opengl.GL.GL_RGBA;
-import static javax.media.opengl.GL.GL_RGBA8;
-import static javax.media.opengl.GL.GL_TEXTURE_2D;
-import static javax.media.opengl.GL.GL_TEXTURE_MAG_FILTER;
-import static javax.media.opengl.GL.GL_TEXTURE_MIN_FILTER;
 import static javax.media.opengl.GL.GL_TRIANGLES;
-import static javax.media.opengl.GL.GL_UNSIGNED_BYTE;
-import static javax.media.opengl.GL2.GL_COMPILE;
 import static javax.media.opengl.GL2GL3.GL_QUADS;
 import static javax.media.opengl.GL2GL3.GL_TEXTURE_1D;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
@@ -29,56 +19,73 @@ import javax.media.opengl.GL2;
  */
 public class Terrain {
 
-    private static final int AMOUNT_TREES = 18;
+    /**
+     * Amount of trees
+     */
+    private static final int AMOUNT_TREES = 12;
 
+    /**
+     * height of tree
+     */
     private final int[] tree_heights;
+    /**
+     * x-coordinate of tree
+     */
     private final int[] tree_x;
+    /**
+     * y-coordinate of tree
+     */
     private final int[] tree_y;
+    /**
+     * radius of tree
+     */
     private final double[] tree_radius;
 
     /**
-     * Whether the display list for the terrain has been set up.
+     * Whether the tree values have been calculated
      */
-    private boolean displayListTerrainSetUp = false;
+    private boolean treesCalculated = false;
 
     /**
      * Number of segments to be used to draw the terrain (per dimension per
      * direction).
      */
-    private int SEGMENTS = 50;
+    private final static int SEGMENTS = 50;
 
     /**
      * First x of the terrain.
      */
-    private int xBegin = 0;
+    private final int xBegin = 0;
 
     /**
      * Size in x of the terrain.
      */
-    private int xSize = 40;
+    private final int xSize = 40;
 
     /**
      * First y of the terrain.
      */
-    private int yBegin = 0;
+    private final int yBegin = 0;
 
     /**
      * Size in y of the terrain.
      */
-    private int ySize = 40;
+    private final int ySize = 40;
 
     /**
      * Returns the height of the terrain at a specific x and y.
      */
     private double heightAt(double x, double y) {
+        //For the field -25<x<25 and -25<y<25 set water
         if (x > - 25 && x < 25 && y > - 25 && y < 25) {
-            double test = (-1 * Math.abs(-1.5 * Math.cos(0.3 * x + 0.15 * y) + 0.4 * Math.cos(x - 0.5 * y)));
+            double test = -1 * (Math.abs(-6 * Math.cos(0.3 * x + 0.15 * y) + 0.4 * Math.cos(x - 0.5 * y)));
             return test;
-        } else {
+        } 
+        //Else set mountains
+        else {
             double test = Math.abs(-6 * Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y));
             return test;
         }
-        //return -0.6* Math.cos(0.3 * x + 0.15 * y) + 0.4 * Math.cos(x - 0.5 * y);
     }
 
     /**
@@ -95,8 +102,7 @@ public class Terrain {
     private Texture1D texture;
 
     /**
-     * Constructs the terrain. Terrain is in [-40,40], looks much better in
-     * camera scale.
+     * Constructs the terrain.
      */
     public Terrain() {
         this.tree_heights = new int[AMOUNT_TREES];
@@ -108,22 +114,13 @@ public class Terrain {
 
     /**
      * Draws the terrain.
+     * @param gl
+     * @param glut
+     * @param sky
      */
     public void draw(GL2 gl, GLUT glut, Texture sky) {
-        // If the display list has not been set up yet, create it
-        if (!displayListTerrainSetUp) {
-            // Create the texture
-            setMaterial(Material.WATER, gl);
-            gl.glBegin(GL_QUADS);
-            gl.glVertex3d(-40, -40, 0);
-            gl.glVertex3d(40, -40, 0);
-            gl.glVertex3d(40, 40, 0);
-            gl.glVertex3d(-40, 40, 0);
-            gl.glEnd();
-            texture = new Texture1D(gl, textureColors);
-            // Finish compiling the display list
-            //       gl.glEndList();
-            // Set set up boolean to true
+        // If the trees have not yet been calculated, calculate the tree value's
+        if (!treesCalculated) {
 
             Random random = new Random();
 
@@ -149,7 +146,7 @@ public class Terrain {
 
             }
 
-            displayListTerrainSetUp = true;
+            treesCalculated = true;
 
         }
 
@@ -157,9 +154,14 @@ public class Terrain {
 
             drawTree(gl, glut, tree_radius[i], tree_heights[i], tree_x[i], tree_y[i], heightAt(tree_x[i], tree_y[i]));
         }
-
+        
+        
         // Draw the gray transparent surface
         setMaterial(Material.BLACK, gl);
+        
+        //Create texture
+        texture = new Texture1D(gl, textureColors);
+        
         // Bind the terrain texture
         texture.bind(gl);
         // Execute the display list for the terrain
@@ -228,6 +230,17 @@ public class Terrain {
         gl.glEnd();
         gl.glPopMatrix();
         sky.disable(gl);
+        
+        
+        // Create the water texture
+        setMaterial(Material.WATER, gl);
+        gl.glBegin(GL_QUADS);
+        gl.glVertex3d(-40, -40, 0);
+        gl.glVertex3d(40, -40, 0);
+        gl.glVertex3d(40, 40, 0);
+        gl.glVertex3d(-40, 40, 0);
+        gl.glEnd();
+
         // Draw the gray transparent surface
         setMaterial(Material.BLACK, gl);
     }

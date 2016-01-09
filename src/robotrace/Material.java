@@ -9,9 +9,9 @@ public enum Material {
          * Water material properties.
          */
         WATER (
-            new float[] {0.5f, 0.5f, 0.5f, 0.5f},
-            new float[] {0.5f, 0.5f, 0.5f, 0.5f},
-            20f),
+         new float[] {RGBToFloat(33), RGBToFloat(150), RGBToFloat(243), 0.1f},
+        new float[] {RGBToFloat(66), RGBToFloat(165), RGBToFloat(245), 0.1f},     
+       1f),
     /** 
      * Gold material properties.
      */

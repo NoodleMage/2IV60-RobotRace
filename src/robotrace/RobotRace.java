@@ -244,7 +244,7 @@ public class RobotRace extends Base {
         // calculate angle by dividing opposite by adjacent line
         Double angle = Math.atan2(gs.vDist, (0.5 * gs.vWidth));
         //Set perspective equal to angle in degrees 
-        glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.025 * gs.vDist, 10 * gs.vDist);
+        glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.035 * gs.vDist, 10 * gs.vDist);
 
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);

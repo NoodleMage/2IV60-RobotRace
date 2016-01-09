@@ -57,16 +57,20 @@ class Camera {
     /**
      * Computes eye, center, and up, based on the camera's default mode.
      */
-    private void setDefaultMode(GlobalState gs) {        
-        double x = gs.cnt.x + gs.vDist*Math.cos(gs.phi)*Math.cos(gs.theta);
-        double y = gs.cnt.y + gs.vDist*Math.cos(gs.phi)*Math.sin(gs.theta);
-        double z = gs.cnt.z + gs.vDist*Math.sin(gs.phi);
-        
-        //System.out.println("The x has value: " + x + "y: " + y + "z:" + z);
-        
-        this.eye = new Vector(x,y,z);
-        this.up = Vector.Z;
-        this.center = gs.cnt;        
+    private void setDefaultMode(GlobalState gs) {  
+        //Calcualte eye point
+        Vector V = new Vector(
+                gs.vDist * Math.cos(gs.theta) * Math.cos(gs.phi),
+                gs.vDist * Math.sin(gs.theta) * Math.cos(gs.phi),
+                gs.vDist * Math.sin(gs.phi)
+            );
+            
+            //eye point E = C + V
+            this.eye = gs.cnt.add(V);
+            
+            //get center point from globalstate
+            this.center = gs.cnt;   
+            this.up = Vector.Z;
     }
 
     /**
@@ -102,9 +106,13 @@ class Camera {
      */
     private void setFirstPersonMode(GlobalState gs, Robot focus) {
        this.up = Vector.Z;
+       
+       //Determine eye by postition and robot height
        double robot_height = 1; //TODO
-       this.eye = focus.position.add(new Vector(0.0001,0.0001,robot_height + 0.2));
-       this.center = focus.direction.add(new Vector(0.0001,0.0001,robot_height + 0.2));
+       this.eye = focus.position.add(new Vector(0,0,robot_height + 0.2));
+       
+       //Use postion and add direction scaled by vDist to determine center point
+       this.center = this.eye.add(focus.direction.normalized().scale(gs.vDist));
     }
     
     /**
@@ -113,13 +121,15 @@ class Camera {
      */
     private void setAutoMode(GlobalState gs, Robot focusBest, Robot focusWorst, Vector motorPosition) {
         
+        //Get random between 0 and 3
         if (cameraCount % 100 == 0)
         {
             cameraCount = 0;
              Random rand = new Random();
              caseCode = rand.nextInt(4);
-//             System.out.println(caseCode);
         }
+        
+        //Use random to determine camera mode
         switch (caseCode) {
             case 0:
                 setDefaultMode(gs);
@@ -137,6 +147,7 @@ class Camera {
                 setDefaultMode(gs);
                 break;
         }
+        //Increase cameracount
         cameraCount++;
     }
 
