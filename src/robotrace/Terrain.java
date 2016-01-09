@@ -76,12 +76,12 @@ public class Terrain {
      * Returns the height of the terrain at a specific x and y.
      */
     private double heightAt(double x, double y) {
-        //For the field -25<x<25 and -25<y<25 set water
+        //for the field -25<x<25 and -25<y<25 set water
         if (x > - 25 && x < 25 && y > - 25 && y < 25) {
             double test = -1 * (Math.abs(-6 * Math.cos(0.3 * x + 0.15 * y) + 0.4 * Math.cos(x - 0.5 * y)));
             return test;
         } 
-        //Else set mountains
+        //else set mountains
         else {
             double test = Math.abs(-6 * Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y));
             return test;
@@ -171,7 +171,7 @@ public class Terrain {
 
         gl.glPushMatrix();
         // Draw the gray transparent surface
-        setMaterial(Material.WATER, gl);
+        setMaterial(Material.SKY, gl);
         sky.enable(gl);
         sky.bind(gl);
         gl.glBegin(GL_QUADS);
@@ -305,24 +305,73 @@ public class Terrain {
 //
 
     public double getTextureCoordinateFromHeight(double height) {
-        height = (height + 1) / 4 + 0.25;
-
-        height = (height < 0.25) ? 0.25 : height;
-        height = (height > 0.75) ? 0.75 : height;
-        return height;
+        
+        double textureCoordinate;
+        
+        //if height smaller then 0 then return blue value
+        if (height < 0)
+        {
+           textureCoordinate = 0.25; //Blue texture
+        }
+        //if height smaller then 0 then return green value
+        else if (height > 0.75)
+        {
+            textureCoordinate = 0.75; //Green texture
+        }
+        //if height smaller then 0 then return deep green value
+        else if (height > 1.25)
+        {
+            textureCoordinate = 1.0; //Deep green texture
+        }
+        //if height smaller then 0 then return yellow value
+        else
+        {
+            textureCoordinate = 0.5; //Yellow texture
+        }
+            
+        return textureCoordinate;
     }
 
+    /**
+     * function to draw a tree
+     * @param gl
+     * @param glut
+     * @param radius
+     * @param height
+     * @param x
+     * @param y
+     * @param z 
+     */
     public void drawTree(GL2 gl, GLUT glut, double radius, int height, double x, double y, double z) {
+        //Initialize matrix
         gl.glPushMatrix();
+        //Translate over x,y,z
         gl.glTranslated(x, y, z);
 
+        //Set material to wood for base of tree
         setMaterial(Material.WOOD, gl);
+        //Draw tree trunk
         glut.glutSolidCylinder(radius, height - 0.75, 30, 30);
+        
+        //Set Material to green
         setMaterial(Material.GREEN, gl);
         for (int i = 0; i < 3; i++) {
+            //Translate over tree trunk
             gl.glTranslated(0, 0, height / 3 - height / 12);
+            
+            //Draw tree part
             glut.glutSolidCone(radius * 4, height / 3, 30, 30);
-
+            
+            //Initial code for christmas balls. Not used yet...
+//            if (i == 1)
+//            {
+//                gl.glPushMatrix();
+//                 setMaterial(Material.BLUE, gl);
+//                gl.glTranslated(radius * 2, radius * 2, -0.1);
+//                glut.glutSolidSphere(0.5, 30,30);
+//                 setMaterial(Material.GREEN, gl);
+//                gl.glPopMatrix();
+//            }
         }
 
         gl.glPopMatrix();

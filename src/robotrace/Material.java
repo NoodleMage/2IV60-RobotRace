@@ -11,7 +11,7 @@ public enum Material {
         WATER (
          new float[] {RGBToFloat(33), RGBToFloat(150), RGBToFloat(243), 0.1f},
         new float[] {RGBToFloat(66), RGBToFloat(165), RGBToFloat(245), 0.1f},     
-       1f),
+       100f),
     /** 
      * Gold material properties.
      */
@@ -123,7 +123,15 @@ public enum Material {
     ANDROID (
          new float[] {RGBToFloat(151), RGBToFloat(192), RGBToFloat(61), 1.0f},
         new float[] {RGBToFloat(151), RGBToFloat(192), RGBToFloat(161), 1.0f},     
-      100f);
+      100f),
+    
+    /**
+     * Blue material properties.
+     */
+     SKY (
+         new float[] {RGBToFloat(33), RGBToFloat(150), RGBToFloat(243), 0.6f},
+        new float[] {RGBToFloat(66), RGBToFloat(165), RGBToFloat(245), 0.6f},     
+       100f);
 
     /** The diffuse RGBA reflectance of the material. */
     float[] diffuse;
