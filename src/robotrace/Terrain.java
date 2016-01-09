@@ -80,8 +80,7 @@ public class Terrain {
         if (x > - 25 && x < 25 && y > - 25 && y < 25) {
             double test = -1 * (Math.abs(-6 * Math.cos(0.3 * x + 0.15 * y) + 0.4 * Math.cos(x - 0.5 * y)));
             return test;
-        } 
-        //else set mountains
+        } //else set mountains
         else {
             double test = Math.abs(-6 * Math.cos(0.3 * x + 0.2 * y) + 0.4 * Math.cos(x - 0.5 * y));
             return test;
@@ -105,6 +104,7 @@ public class Terrain {
      * Constructs the terrain.
      */
     public Terrain() {
+        //Initialize tree arrays.
         this.tree_heights = new int[AMOUNT_TREES];
         this.tree_x = new int[AMOUNT_TREES];
         this.tree_y = new int[AMOUNT_TREES];
@@ -114,6 +114,7 @@ public class Terrain {
 
     /**
      * Draws the terrain.
+     *
      * @param gl
      * @param glut
      * @param sky
@@ -122,58 +123,82 @@ public class Terrain {
         // If the trees have not yet been calculated, calculate the tree value's
         if (!treesCalculated) {
 
+            //Create new random
             Random random = new Random();
 
+            //Loop through amount of trees
             for (int i = 0; i < AMOUNT_TREES; i++) {
-                tree_heights[i] = random.nextInt(4) + 6;
-                
-            tree_radius[i] = (double) (random.nextInt(4) + 3) / 10;
-            
-            int negative = 0;
-            while (negative == 0)
-            {
-                negative = random.nextInt(3) -1;
-            }
-            
-            int negative2 = 0;
-            while (negative2 == 0)
-            {
-                negative2 = random.nextInt(3) -1;
-            }
 
+                //Set random tree height between 6 and 10
+                tree_heights[i] = random.nextInt(4) + 6;
+
+                //Set random tree radius between 0.3 and 0.6
+                tree_radius[i] = (double) (random.nextInt(4) + 3) / 10;
+
+                //Get random negative.
+                //We loop through random and wait till random is or -1 and 1.
+                //Because 0 is a possible value we use the while loop to check if not 0
+                //We are aware that this is a bit of a cheaty work around
+                //But we have no better solution at the moment.
+                int negative = 0;
+                while (negative == 0) {
+                    negative = random.nextInt(3) - 1;
+                }
+
+                int negative2 = 0;
+                while (negative2 == 0) {
+                    negative2 = random.nextInt(3) - 1;
+                }
+                
+                //Use random negative to get random location at the corners of the map
                 tree_x[i] = negative * (random.nextInt(25) + 15);
                 tree_y[i] = negative2 * (random.nextInt(25) + 15);
 
             }
-
+            
+            //Set treesCalculated to true
             treesCalculated = true;
 
         }
 
+        //Draw trees
         for (int i = 0; i < AMOUNT_TREES; i++) {
 
             drawTree(gl, glut, tree_radius[i], tree_heights[i], tree_x[i], tree_y[i], heightAt(tree_x[i], tree_y[i]));
         }
-        
-        
+
         // Draw the gray transparent surface
         setMaterial(Material.BLACK, gl);
-        
-        //Create texture
+
+        //Create 1d terain texture
         texture = new Texture1D(gl, textureColors);
-        
+
         // Bind the terrain texture
         texture.bind(gl);
-        // Execute the display list for the terrain
+        // execute the draw texture function
         drawTexture(gl);
         // Unbind the terrain texture
         gl.glBindTexture(GL_TEXTURE_1D, 0);
+        
+        
 
+        // Create the water texture
+        setMaterial(Material.WATER, gl);
+        gl.glBegin(GL_QUADS);
+        gl.glVertex3d(-40, -40, 0);
+        gl.glVertex3d(40, -40, 0);
+        gl.glVertex3d(40, 40, 0);
+        gl.glVertex3d(-40, 40, 0);
+        gl.glEnd();
+
+        //Draw the sky
         gl.glPushMatrix();
         // Draw the gray transparent surface
         setMaterial(Material.SKY, gl);
         sky.enable(gl);
         sky.bind(gl);
+        
+        //Draw first block of quads
         gl.glBegin(GL_QUADS);
         gl.glTexCoord2f(0, 0);
         gl.glVertex3d(40, -40, -5);
@@ -185,6 +210,7 @@ public class Terrain {
         gl.glVertex3d(40, 40, -5);
         gl.glEnd();
 
+        //Draw second bloc of quads
         gl.glBegin(GL_QUADS);
         gl.glTexCoord2f(0, 0);
         gl.glVertex3d(-40, 40, -5);
@@ -195,7 +221,9 @@ public class Terrain {
         gl.glTexCoord2f(0, 1);
         gl.glVertex3d(40, 40, -5);
         gl.glEnd();
-
+        
+        
+        //Draw third block of quads
         gl.glBegin(GL_QUADS);
         gl.glTexCoord2f(0, 0);
         gl.glVertex3d(40, -40, -5);
@@ -207,6 +235,7 @@ public class Terrain {
         gl.glVertex3d(-40, -40, -5);
         gl.glEnd();
 
+        //Draw fourth block of quads
         gl.glBegin(GL_QUADS);
         gl.glTexCoord2f(0, 0);
         gl.glVertex3d(-40, -40, -5);
@@ -217,7 +246,8 @@ public class Terrain {
         gl.glTexCoord2f(0, 1);
         gl.glVertex3d(-40, 40, -5);
         gl.glEnd();
-
+        
+        //Draw the ceiling.
         gl.glBegin(GL_QUADS);
         gl.glTexCoord2f(0, 0);
         gl.glVertex3d(-xSize, -ySize, 40);
@@ -230,21 +260,11 @@ public class Terrain {
         gl.glEnd();
         gl.glPopMatrix();
         sky.disable(gl);
-        
-        
-        // Create the water texture
-        setMaterial(Material.WATER, gl);
-        gl.glBegin(GL_QUADS);
-        gl.glVertex3d(-40, -40, 0);
-        gl.glVertex3d(40, -40, 0);
-        gl.glVertex3d(40, 40, 0);
-        gl.glVertex3d(-40, 40, 0);
-        gl.glEnd();
-
         // Draw the gray transparent surface
         setMaterial(Material.BLACK, gl);
     }
 
+    //Draw the 1D texture
     public void drawTexture(GL2 gl) {
         gl.glBegin(GL_TRIANGLES);
         for (int xi = -SEGMENTS; xi < SEGMENTS; xi++) {
@@ -302,45 +322,39 @@ public class Terrain {
         // Finish the triangle list
         gl.glEnd();
     }
-//
-
+    
+    //Get  correct color from height
     public double getTextureCoordinateFromHeight(double height) {
-        
+        //The value of the texture color
         double textureCoordinate;
-        
+
         //if height smaller then 0 then return blue value
-        if (height < 0)
-        {
-           textureCoordinate = 0.25; //Blue texture
-        }
-        //if height smaller then 0 then return green value
-        else if (height > 0.75)
-        {
+        if (height < 0) {
+            textureCoordinate = 0.25; //Blue texture
+        } 
+        //if height bigger then 0.75 then return green value
+        else if (height > 0.75) {
             textureCoordinate = 0.75; //Green texture
-        }
-        //if height smaller then 0 then return deep green value
-        else if (height > 1.25)
-        {
-            textureCoordinate = 1.0; //Deep green texture
-        }
+        } 
         //if height smaller then 0 then return yellow value
-        else
-        {
+        else {
             textureCoordinate = 0.5; //Yellow texture
         }
-            
+
+        //Return the correct value in color spectrum
         return textureCoordinate;
     }
 
     /**
      * function to draw a tree
+     *
      * @param gl
      * @param glut
      * @param radius
      * @param height
      * @param x
      * @param y
-     * @param z 
+     * @param z
      */
     public void drawTree(GL2 gl, GLUT glut, double radius, int height, double x, double y, double z) {
         //Initialize matrix
@@ -352,16 +366,16 @@ public class Terrain {
         setMaterial(Material.WOOD, gl);
         //Draw tree trunk
         glut.glutSolidCylinder(radius, height - 0.75, 30, 30);
-        
+
         //Set Material to green
         setMaterial(Material.GREEN, gl);
         for (int i = 0; i < 3; i++) {
             //Translate over tree trunk
             gl.glTranslated(0, 0, height / 3 - height / 12);
-            
+
             //Draw tree part
             glut.glutSolidCone(radius * 4, height / 3, 30, 30);
-            
+
             //Initial code for christmas balls. Not used yet...
 //            if (i == 1)
 //            {

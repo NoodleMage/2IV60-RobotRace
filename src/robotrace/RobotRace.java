@@ -42,20 +42,20 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
  */
 public class RobotRace extends Base {
 
-    private Double step = 0d;
+    private final Double step;
 
     private int luckCount = 0;
 
-    private Double[] steps = {0.0, 0.0, 0.0, 0.0};
+    private final Double[] steps = {0.0, 0.0, 0.0, 0.0};
 
-    private Boolean[] hasLuck = {false, false, false, false};
+    private final Boolean[] hasLuck = {false, false, false, false};
 
-    private static int MOTOR_LANE = 6;
+    private static final int MOTOR_LANE = 6;
 
     private Vector motorPosition;
 
-    private Double N = 10000d;
-    private Double speed = 5.0;
+    private final Double N = 10000d;
+    private static final Double SPEED = 5.0;
 
     private Texture finish;
     private Texture sky;
@@ -84,6 +84,7 @@ public class RobotRace extends Base {
      * terrain.
      */
     public RobotRace() {
+        this.step = 0d;
 
         // Create a new array of four robots
         robots = new Robot[4];
@@ -310,10 +311,10 @@ public class RobotRace extends Base {
         for (int i = 0; i < 4; i++) {
             if (hasLuck[i]) {
                 Random rand = new Random();
-                speeds[i] = speed + (rand.nextDouble() * 4);
+                speeds[i] = SPEED + (rand.nextDouble() * 4);
             } else {
                 Random rand = new Random();
-                speeds[i] = speed + rand.nextDouble();
+                speeds[i] = SPEED + rand.nextDouble();
             }
         }
 
@@ -366,8 +367,7 @@ public class RobotRace extends Base {
         raceTracks[gs.trackNr].draw(gl, glu, glut, track, brick, finish);
 
         // Draw the terrain.
-//        terrain.draw(gl, glu, glut);
-terrain.draw(gl,glut,sky);
+        terrain.draw(gl, glut, sky);
     }
 
     /**
