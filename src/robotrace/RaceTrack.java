@@ -23,35 +23,39 @@ class RaceTrack {
     private final static float LANE_WIDTH = 1.22f;
 
     /**
-     * TODO*
+     * The numbers of lanes of which the track
      */
     private final static int NUMBER_OF_LANES = 4;
 
     /**
-     * TODO*
+     * List containing points of quad.
      */
     private List<Vector> points;
 
     /**
-     * TODO*
+     * Number of segments
      */
     private final static Double N = 200D;
 
     /**
-     * TODO*
+     * List containing offset points of quad
      */
     private List<Vector> offset_points;
-    
-     /**
-     * TODO*
+
+    /**
+     * List containing normals of track
      */
     private List<Vector> normals;
 
     /**
-     * TODO*
+     * MIN_HEIGHT of track. No used at the moment
      */
     private final static int MIN_HEIGHT = -1;
-
+    
+    /**
+     * LANE_HEIGHT of track.
+     */
+    private final static int LANE_HEIGHT = 2;
     /**
      * Array with 3N control points, where N is the number of segments.
      */
@@ -72,6 +76,12 @@ class RaceTrack {
 
     /**
      * Draws this track, based on the control points.
+     * @param gl
+     * @param glu
+     * @param glut
+     * @param track
+     * @param brick
+     * @param finish 
      */
     public void draw(GL2 gl, GLU glu, GLUT glut, Texture track, Texture brick, Texture finish) {
         Vector finishPoint = null;
@@ -83,15 +93,17 @@ class RaceTrack {
         points = new ArrayList();
         //Initialize arraylist of offset_points;
         offset_points = new ArrayList<>();
-        
+
         //Initialize arraylist of normals
         normals = new ArrayList<>();
 
         Vector normal;
+
+        //Check if default track        
         if (null == controlPoints) {
-
+            //Loop through number of lanes.
             for (int i = 0; i < NUMBER_OF_LANES; i++) {
-
+                //Loop through number of segements.
                 for (int j = 0; j < N + 1; j++) {
 
                     //If not first time creating list
@@ -115,7 +127,7 @@ class RaceTrack {
                     Vector point = getPoint(t);
 
                     //If point list is smaller then needed points add point.
-                    //This means new points will only be added on first lis generation.
+                    //This means new points will only be added on first list generation.
                     if (points.size() <= j) {
                         points.add(point);
                     }
@@ -133,11 +145,15 @@ class RaceTrack {
                     //Add offset point
                     offset_points.add(off);
 
+                    //If 1st segement and first lane
                     if (j == 0 && i == 0) {
+                        //get inner and outer finish line point 
                         finishPoint = point;
                         finishOff = point.add(normal.normalized().scale((LANE_WIDTH * (NUMBER_OF_LANES))));
                     }
+                    //If 5th segment and first lane
                     if (j == 5 && i == 0) {
+                        //get inner and outer finish line point 
                         finishPointNext = point;
                         finishOffNext = point.add(normal.normalized().scale((LANE_WIDTH * (NUMBER_OF_LANES))));
                     }
@@ -150,9 +166,13 @@ class RaceTrack {
 
             }
         } else {
+            //Loop through number of controlpoints with step of 3 (bezier curve)
             for (int k = 0; k < controlPoints.length - 1; k = k + 3) {
+                //Loop through number of lanes
                 for (int i = 0; i < NUMBER_OF_LANES; i++) {
+                    //Loop through number of segments
                     for (int j = 0; j < N + 1; j++) {
+
                         //Calculate t
                         double t = j / N;
 
@@ -183,18 +203,21 @@ class RaceTrack {
                         //Calculate normal by cross with z-axis
                         normal = tangent.cross(new Vector(0, 0, -1));
                         normals.add(normal);
-                        
+
                         //Add unit normal vector to point and scale to lane width
                         Vector off = point.add(normal.normalized().scale((LANE_WIDTH * (i + 1))));
 
                         //Add offset point
                         offset_points.add(off);
 
+                        //if 1st controlpoint and 1st land and 1st segment.
                         if (j == 0 && i == 0 && k == 0) {
+                            //Calculate finish line points
                             finishPoint = point;
                             finishOff = finishPoint.add(normal.normalized().scale(LANE_WIDTH * NUMBER_OF_LANES));
                         }
                         if (j == (controlPoints.length / 3) * 5 && i == 0 & k == 0) {
+                            //Calculate finish line point
                             finishPointNext = point;
                             finishOffNext = finishPointNext.add(normal.normalized().scale(LANE_WIDTH * NUMBER_OF_LANES));
                         }
@@ -205,14 +228,18 @@ class RaceTrack {
                     //Draw track
                     drawTrack(points, offset_points, N, gl, track, brick);
                 }
+                //Clear list of points
                 points.clear();
+                //Clear list of offset_points
                 offset_points.clear();
             }
 
         }
+        //Draw the finish line
         drawFinish(gl, finish, finishPoint, finishOff, finishPointNext, finishOffNext);
     }
 
+    //Update lane colors.
     private void setLaneColors(int lane_number, GL2 gl) {
         switch (lane_number) {
             case 0:
@@ -228,11 +255,21 @@ class RaceTrack {
                 setMaterial(Material.YELLOW, gl);
                 break;
             default:
+                setMaterial(Material.BLACK, gl);
                 break;
         }
 
     }
 
+    /**
+     * Draw the track
+     * @param points
+     * @param offset_points
+     * @param N
+     * @param gl
+     * @param track
+     * @param brick 
+     */
     private void drawTrack(List<Vector> points, List<Vector> offset_points, Double N, GL2 gl, Texture track, Texture brick) {
         // Start using track texture.
         track.enable(gl);
@@ -247,6 +284,14 @@ class RaceTrack {
         brick.disable(gl);
     }
 
+    /**
+     * Draw sides of track
+     * @param points
+     * @param offset_points
+     * @param normals
+     * @param N
+     * @param gl 
+     */
     private void drawTrakSides(List<Vector> points, List<Vector> offset_points, List<Vector> normals, Double N, GL2 gl) {
         // 2D array to store the line translations
         int[][] coordinates2d = new int[][]{
@@ -259,30 +304,46 @@ class RaceTrack {
             {1, 1},
             {0, 1}};
 
-            gl.glBegin(GL_QUADS);
+        //Draw sides of lane with squads.
+        gl.glBegin(GL_QUADS);
+        //Loop trhough number of segements
         for (int i = 0; i < N; i++) {
+             // 3D array to store the line translations
+             //Calculate points by point list and offset_list
+             //We first draw the left side with lane height = LANE_HEIGHT; 
+             //NOTE: points.get(.).z - LANE_HEIGHT can be changed to min height to get track with height z to MIN_HEIGHT
+             //Then we draw the right side with lane height = LANE_HEIGHT
             double[][] coordinates3d = new double[][]{
                 {points.get(i).x, points.get(i).y, points.get(i).z},
                 {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z},
-                {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z - 2},
-                {points.get(i).x, points.get(i).y, points.get(i).z - 2},
+                {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z - LANE_HEIGHT},
+                {points.get(i).x, points.get(i).y, points.get(i).z - LANE_HEIGHT},
                 {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z},
                 {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z},
-                {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z - 2},
-                {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z - 2}};
+                {offset_points.get(i + 1).x, offset_points.get(i + 1).y, offset_points.get(i + 1).z - LANE_HEIGHT},
+                {offset_points.get(i).x, offset_points.get(i).y, offset_points.get(i).z - LANE_HEIGHT}};
 
-            
+            //Start looping through multidimensinal array to draw track
             gl.glNormal3d(normals.get(i).x, normals.get(i).y, normals.get(i).z); // upwards pointing normal equal to normal
             for (int j = 0; j < coordinates2d.length; j++) {
+                //Draw 2D coordinates
                 gl.glTexCoord2f(coordinates2d[j][0], coordinates2d[j][1]);
+                //Draw 3D coordinates
                 gl.glVertex3d(coordinates3d[j][0], coordinates3d[j][1], coordinates3d[j][2]);
             }
-           
+
         }
-         gl.glEnd();
+        gl.glEnd();
 
     }
 
+    /**
+     * Draw track lane (top and bottom)
+     * @param points
+     * @param offset_points
+     * @param N
+     * @param gl 
+     */
     private void drawTrackLane(List<Vector> points, List<Vector> offset_points, Double N, GL2 gl) {
         // 2D array to store the line translations
         int[][] coordinates2d = new int[][]{
@@ -306,9 +367,9 @@ class RaceTrack {
                 gl.glVertex3d(coordinates3d[j][0], coordinates3d[j][1], coordinates3d[j][2]);
             }
         }
-         gl.glEnd();
-         
-         // Draw the bottom of the track.
+        gl.glEnd();
+
+        // Draw the bottom of the track.
         gl.glBegin(GL_QUADS);
         for (int i = 0; i < N; i++) {
             double[][] coordinates3d = new double[][]{
@@ -323,9 +384,18 @@ class RaceTrack {
                 gl.glVertex3d(coordinates3d[j][0], coordinates3d[j][1], coordinates3d[j][2]);
             }
         }
-         gl.glEnd();
+        gl.glEnd();
     }
 
+    /**
+     * Draw finish line
+     * @param gl
+     * @param finish
+     * @param point
+     * @param off
+     * @param point_next
+     * @param off_next 
+     */
     private void drawFinish(GL2 gl, Texture finish, Vector point, Vector off, Vector point_next, Vector off_next) {
         //Set material to white
         setMaterial(Material.WHITE, gl);
@@ -343,8 +413,8 @@ class RaceTrack {
 
         double[][] coordinates3d = new double[][]{
             {point.x, point.y, point.z + 0.05},
-            {off.x, point.y, off.z + 0.05},
-            {off_next.x, point_next.y, off_next.z + 0.05},
+            {off.x, off.y, off.z + 0.05},
+            {off_next.x, off_next.y, off_next.z + 0.05},
             {point_next.x, point_next.y, point_next.z + 0.05}};
 
         gl.glBegin(GL_QUADS);
@@ -385,6 +455,13 @@ class RaceTrack {
         }
     }
 
+    /**
+     * Returns center point on lane
+     * @param lane
+     * @param point
+     * @param normal
+     * @return 
+     */
     private Vector getPointOnLane(int lane, Vector point, Vector normal) {
         Vector point2 = new Vector(0, 0, 0);
         if (lane != 0) {
@@ -414,6 +491,12 @@ class RaceTrack {
         }
     }
 
+    /**
+     * Returns the tangent or position on bezier line.
+     * @param t between 0<=t<1
+     * @param isTangent if true return tangent
+     * @return 
+     */
     public Vector getLaneBezier(double t, boolean isTangent) {
 
         // Calculate number of segments

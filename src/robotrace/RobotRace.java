@@ -42,20 +42,20 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
  */
 public class RobotRace extends Base {
 
-    private Double step = 0d;
+    private final Double step;
 
     private int luckCount = 0;
 
-    private Double[] steps = {0.0, 0.0, 0.0, 0.0};
+    private final Double[] steps = {0.0, 0.0, 0.0, 0.0};
 
-    private Boolean[] hasLuck = {false, false, false, false};
+    private final Boolean[] hasLuck = {false, false, false, false};
 
-    private static int MOTOR_LANE = 7;
+    private static final int MOTOR_LANE = 6;
 
     private Vector motorPosition;
 
-    private Double N = 10000d;
-    private Double speed = 5.0;
+    private final Double N = 10000d;
+    private static final Double SPEED = 5.0;
 
     private Texture finish;
     private Texture sky;
@@ -84,6 +84,7 @@ public class RobotRace extends Base {
      * terrain.
      */
     public RobotRace() {
+        this.step = 0d;
 
         // Create a new array of four robots
         robots = new Robot[4];
@@ -120,34 +121,34 @@ public class RobotRace extends Base {
 
         // L-track
         raceTracks[2] = new RaceTrack(new Vector[]{
-            new Vector(4, 11, 1),
-            new Vector(4, 10, 1),
-            new Vector(4, 9, 1),
-            new Vector(4, 7, 1),
-            new Vector(4, 2, 1),
-            new Vector(5, 0, 1),
-            new Vector(13, 0, 1),
+            new Vector(0, 11, 1),
+            new Vector(0, 10, 1),
+            new Vector(0, 9, 1),
+            new Vector(0, 7, 1),
+            new Vector(0, 2, 1),
+            new Vector(1, 0, 1),
+            new Vector(9, 0, 1),
+            new Vector(12, 0, 1),
+            new Vector(14, 0, 1),
             new Vector(16, 0, 1),
-            new Vector(18, 0, 1),
-            new Vector(20, 0, 1),
-            new Vector(23, 0, 1),
-            new Vector(23, -5, 1),
-            new Vector(20, -5, 2),
-            new Vector(17, -5, 2),
-            new Vector(10, -5, 1),
-            new Vector(1, -5, 1),
-            new Vector(-1, -5, 1),
-            new Vector(-3, -3, 1),
-            new Vector(-3, -1, 1),
-            new Vector(-3, 1, 1),
-            new Vector(-3, 5, 1),
-            new Vector(-3, 10, 1),
-            new Vector(-3, 13, 1),
-            new Vector(-1, 15, 1),
-            new Vector(2, 15, 1),
-            new Vector(4, 15, 1),
-            new Vector(4, 12, 1),
-            new Vector(4, 11, 1),});
+            new Vector(19, 0, 1),
+            new Vector(19, -5, 1),
+            new Vector(16, -5, 2),
+            new Vector(13, -5, 2),
+            new Vector(6, -5, 1),
+            new Vector(-3, -5, 1),
+            new Vector(-5, -5, 1),
+            new Vector(-8, -3, 1),
+            new Vector(-8, -1, 1),
+            new Vector(-8, 1, 1),
+            new Vector(-8, 5, 1),
+            new Vector(-8, 10, 1),
+            new Vector(-8, 13, 1),
+            new Vector(-5, 15, 1),
+            new Vector(-2, 15, 1),
+            new Vector(0, 15, 1),
+            new Vector(0, 12, 1),
+            new Vector(0, 11, 1),});
         // C-track
         raceTracks[3] = new RaceTrack(new Vector[]{
             new Vector(-5, 10, 1),
@@ -178,19 +179,19 @@ public class RobotRace extends Base {
 
         // Custom track
         raceTracks[4] = new RaceTrack(new Vector[]{
-            new Vector(-7.5, 0, 8),
-            new Vector(-7.5, 7.5, 8),
-            new Vector(7.5, 7.5, 8),
-            new Vector(7.5, 0, 8),
-            new Vector(7.5, -7.5, 8),
-            new Vector(-7.5, -7.5, 8),
-            new Vector(-7.5, 0, 1),
-            new Vector(-7.5, 7.5, 1),
-            new Vector(-22.5, 7.5, 1),
-            new Vector(-22.5, 0, 1),
-            new Vector(-22.5, -15, 1),
-            new Vector(-7.5, -15, 8),
-            new Vector(-7.5, 0, 8),});
+            new Vector(-5, 0, 8),
+            new Vector(-5, 7.5, 8),
+            new Vector(10, 7.5, 8),
+            new Vector(10, 0, 8),
+            new Vector(10, -7.5, 8),
+            new Vector(-5, -7.5, 8),
+            new Vector(-5, 0, 1),
+            new Vector(-5, 7.5, 1),
+            new Vector(-20, 7.5, 1),
+            new Vector(-20, 0, 1),
+            new Vector(-20, -15, 1),
+            new Vector(-5, -15, 8),
+            new Vector(-5, 0, 8),});
 
         // Initialize the terrain
         terrain = new Terrain();
@@ -244,7 +245,7 @@ public class RobotRace extends Base {
         // calculate angle by dividing opposite by adjacent line
         Double angle = Math.atan2(gs.vDist, (0.5 * gs.vWidth));
         //Set perspective equal to angle in degrees 
-        glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.1 * gs.vDist, 10 * gs.vDist);
+        glu.gluPerspective(Math.toDegrees(angle) * 0.5, (float) gs.w / (float) gs.h, 0.035 * gs.vDist, 10 * gs.vDist);
 
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);
@@ -310,10 +311,10 @@ public class RobotRace extends Base {
         for (int i = 0; i < 4; i++) {
             if (hasLuck[i]) {
                 Random rand = new Random();
-                speeds[i] = speed + (rand.nextDouble() * 4);
+                speeds[i] = SPEED + (rand.nextDouble() * 4);
             } else {
                 Random rand = new Random();
-                speeds[i] = speed + rand.nextDouble();
+                speeds[i] = SPEED + rand.nextDouble();
             }
         }
 
@@ -366,8 +367,7 @@ public class RobotRace extends Base {
         raceTracks[gs.trackNr].draw(gl, glu, glut, track, brick, finish);
 
         // Draw the terrain.
-//        terrain.draw(gl, glu, glut);
-terrain.draw(gl,glut,sky);
+        terrain.draw(gl, glut, sky);
     }
 
     /**
