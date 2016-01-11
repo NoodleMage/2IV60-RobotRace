@@ -42,25 +42,65 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
  */
 public class RobotRace extends Base {
     
-
+    /**
+     * Steps set by robot
+     */
     private Double[] steps = {0.0, 0.0, 0.0, 0.0};
 
+    /**
+     * Lane of motor cycle view
+     */
     private static final int MOTOR_LANE = 6;
 
+    /**
+     * Position of motor
+     */
     private Vector motorPosition;
 
+    /**
+     * The current tAnim
+     * Used to determine anim difference
+     */
     private double currentTAnim = 0.0;
+    
+    /**
+     * previous tAnim
+     * Used to determine anim difference
+     */
     private double prevTAnim = 0.0;
 
+    /**
+     * Number of steps robot take to complete course
+     */
     private Double N = 10000d;
 
     
-    private final static double MAX_SPEED = 200;
-    private final static double MIN_SPEED = 175;
+    /**
+     * Minimal speed of robot
+     */
+    private final static double MIN_SPEED = 120;
+    /**
+     * Maximum speed of robots
+     * Should always be higher then MIN_SPEED
+     */
+    private final static double MAX_SPEED = 140;
     
+    /**
+     * current speed of robots
+     */
     private final double[] speed = {0.0, 0.0, 0.0, 0.0};
+    
+    /**
+     * Finish line texture
+     * Use for finish lines
+     */
     private Texture finish;
+    
+    /**
+     * Sky texture. Used for sky box
+     */
     private Texture sky;
+    
     /**
      * Array of the four robots.
      */
@@ -150,7 +190,9 @@ public class RobotRace extends Base {
             new Vector(0, 15, 1),
             new Vector(0, 12, 1),
             new Vector(0, 11, 1),});
+        
         // C-track
+        //Because of the C shape and the way track are drawn the max lanes for C is 4
         raceTracks[3] = new RaceTrack(new Vector[]{
             new Vector(-5, 10, 1),
             new Vector(0, 15, 1),
@@ -179,6 +221,7 @@ public class RobotRace extends Base {
             new Vector(-5, 10, 1),});
 
         // Custom track
+        // a disformed 8 shape with a slope.
         raceTracks[4] = new RaceTrack(new Vector[]{
             new Vector(-5, 0, 8),
             new Vector(-5, 7.5, 8),
@@ -229,6 +272,9 @@ public class RobotRace extends Base {
         finish = loadTexture("finish.jpg");
         sky = loadTexture("sky.jpg");
         
+        //Set the torso texture of the robot
+        //If not set torso texture will cause null pointers
+        //This is because the torso texutre is not yet initialized when the robots are created.
         for (int i = 0; i < robots.length; i++) {
             robots[i].setTorso(torso, head);
             
@@ -262,7 +308,7 @@ public class RobotRace extends Base {
         int best = 0;
         int worst = 0;
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < robots.length; i++) {
             if (steps[i] > steps[best]) {
                 best = i;
             }
@@ -271,13 +317,17 @@ public class RobotRace extends Base {
             }
         }
 
+        //Set motor postion by lane choice and best robot
         motorPosition = raceTracks[gs.trackNr].getLanePoint(MOTOR_LANE, steps[best] / N);
 
+        
+        //Update camera settings
         camera.update(gs, robots[best], robots[worst], motorPosition);
         glu.gluLookAt(camera.eye.x(), camera.eye.y(), camera.eye.z(),
                 camera.center.x(), camera.center.y(), camera.center.z(),
                 camera.up.x(), camera.up.y(), camera.up.z());
 
+        //Set lightning
         setLighting();
     }
     
@@ -303,25 +353,28 @@ public class RobotRace extends Base {
             drawAxisFrame();
         }
 
+        //Set prev random (0 on first run)
         prevTAnim = currentTAnim;
+        //Set currentTAnim equal to gs.tAnim
         currentTAnim = gs.tAnim;
 
+        //Initalize random.
         Random random = new Random();
-//         Get the position and direction of the first robot.
-        for (int i = 0; i < 4; i++) {
+        
+        for (int i = 0; i < robots.length; i++) {
+            
+        //Get en set the direction and position of robot
             robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (steps[i]) / N);
             robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, steps[i] / N);
-            // System.out.println(raceTracks[gs.trackNr].getLanePoint(i,steps[i]/N).x);
-            // camera.update(gs, robots[i]);
             
-            System.out.println(steps[i] / N);
-
+            //Increase steps set by tanim and current robot speed
             steps[i] += (currentTAnim - prevTAnim) * speed[i];
 
-            //If you want to calculate the finish 
-            //steps[i[ != 0 check is neede bacause otherwise the inital start also counts as a round
-            if (round(steps[i]/speed[i],1) % round((N/speed[i]),1) == 0) {
+            //Calculate when new round and take a new speed
+            if (round(steps[i]/speed[i],1) % round((N/speed[i]),1) == 0 || (steps[i] / N) > 1.0) {
+                //Reset steps to prevent white screen of doom (prevent t > 1).
                 steps[i] = 0.0;
+                //Take a new random speed
                 speed[i] = random.nextInt((int) (MAX_SPEED - MIN_SPEED)) + MIN_SPEED;
             }
         }
@@ -329,11 +382,12 @@ public class RobotRace extends Base {
         //Draw robots
         gl.glPushMatrix();
 
-        for (int i = 0; i < 4; i++) {
+        //loop through robots
+        for (int i = 0; i < robots.length; i++) {
             gl.glPushMatrix();
+            //Translate robot to correct position.
             gl.glTranslated(robots[i].position.x, robots[i].position.y, robots[i].position.z);
-            //double angle = Math.atan2(robots[i].direction.y, robots[i].direction.x);
-
+            
             // Calculate the dot product between the tangent and the Y axis.
             double dot = robots[i].direction.dot(Vector.Y);
 
@@ -349,8 +403,7 @@ public class RobotRace extends Base {
             }
             gl.glRotated(Math.toDegrees(angle), 0, 0, 1);
 
-            // Rotate bender to stand perpendicular to lange tangent
-            // gl.glRotated(Math.toDegrees(angle) - 90, 0, 0, 1);
+            //Draw the robot
             robots[i].draw(gl, glu, glut, gs.showStick, gs.tAnim);
             gl.glPopMatrix();
         }
@@ -472,6 +525,12 @@ public class RobotRace extends Base {
         robotRace.run();
     }
 
+    /**
+     * rounds a double to the given decimal.
+     * @param value
+     * @param precision
+     * @return 
+     */
     private static double round(double value, int precision) {
         int scale = (int) Math.pow(10, precision);
         return (double) Math.round(value * scale) / scale;

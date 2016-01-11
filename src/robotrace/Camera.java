@@ -16,7 +16,14 @@ class Camera {
     /** The up vector. */
     public Vector up = Vector.Z;
     
+    /**
+     * Used to determine view witch for auto mode
+     */
     private int cameraCount = 0;
+    
+    /**
+     * Used to determine which camera view is shown
+     */
     private int caseCode = 0;
 
     /**
@@ -108,7 +115,7 @@ class Camera {
        this.up = Vector.Z;
        
        //Determine eye by postition and robot height
-       double robot_height = 1; //TODO
+       double robot_height = 1.5;
        this.eye = focus.position.add(new Vector(0,0,robot_height + 0.2));
        
        //Use postion and add direction scaled by vDist to determine center point

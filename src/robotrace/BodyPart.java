@@ -193,6 +193,8 @@ class Head extends BodyPart {
         // Draw the face (cylinder without hemisphere)
         this.SolidCylinder(foreheadRadius, faceHeight);
         
+         //Set material to white
+            this.setMaterial(Material.WHITE);
         // 2D array to store the line translations
         int[][] coordinates2d = new int[][]{
             {0, 0},
@@ -225,7 +227,8 @@ class Head extends BodyPart {
         texture.disable(gl);
         // Pop it like it's hot 
         gl.glPopMatrix();
-
+         //Set material to white
+            this.setMaterial(this.material);
         // Translate for forehead to be (semi) ontop of face
         gl.glTranslated(0, 0, faceHeight);
         // Draw the forehead (the hemishpere on top of face cylinder).

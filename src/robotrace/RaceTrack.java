@@ -51,7 +51,7 @@ class RaceTrack {
      * MIN_HEIGHT of track. No used at the moment
      */
     private final static int MIN_HEIGHT = -1;
-    
+
     /**
      * LANE_HEIGHT of track.
      */
@@ -76,12 +76,13 @@ class RaceTrack {
 
     /**
      * Draws this track, based on the control points.
+     *
      * @param gl
      * @param glu
      * @param glut
      * @param track
      * @param brick
-     * @param finish 
+     * @param finish
      */
     public void draw(GL2 gl, GLU glu, GLUT glut, Texture track, Texture brick, Texture finish) {
         Vector finishPoint = null;
@@ -263,12 +264,13 @@ class RaceTrack {
 
     /**
      * Draw the track
+     *
      * @param points
      * @param offset_points
      * @param N
      * @param gl
      * @param track
-     * @param brick 
+     * @param brick
      */
     private void drawTrack(List<Vector> points, List<Vector> offset_points, Double N, GL2 gl, Texture track, Texture brick) {
         // Start using track texture.
@@ -286,11 +288,12 @@ class RaceTrack {
 
     /**
      * Draw sides of track
+     *
      * @param points
      * @param offset_points
      * @param normals
      * @param N
-     * @param gl 
+     * @param gl
      */
     private void drawTrakSides(List<Vector> points, List<Vector> offset_points, List<Vector> normals, Double N, GL2 gl) {
         // 2D array to store the line translations
@@ -308,11 +311,11 @@ class RaceTrack {
         gl.glBegin(GL_QUADS);
         //Loop trhough number of segements
         for (int i = 0; i < N; i++) {
-             // 3D array to store the line translations
-             //Calculate points by point list and offset_list
-             //We first draw the left side with lane height = LANE_HEIGHT; 
-             //NOTE: points.get(.).z - LANE_HEIGHT can be changed to min height to get track with height z to MIN_HEIGHT
-             //Then we draw the right side with lane height = LANE_HEIGHT
+            // 3D array to store the line translations
+            //Calculate points by point list and offset_list
+            //We first draw the left side with lane height = LANE_HEIGHT; 
+            //NOTE: points.get(.).z - LANE_HEIGHT can be changed to min height to get track with height z to MIN_HEIGHT
+            //Then we draw the right side with lane height = LANE_HEIGHT
             double[][] coordinates3d = new double[][]{
                 {points.get(i).x, points.get(i).y, points.get(i).z},
                 {points.get(i + 1).x, points.get(i + 1).y, points.get(i + 1).z},
@@ -339,10 +342,11 @@ class RaceTrack {
 
     /**
      * Draw track lane (top and bottom)
+     *
      * @param points
      * @param offset_points
      * @param N
-     * @param gl 
+     * @param gl
      */
     private void drawTrackLane(List<Vector> points, List<Vector> offset_points, Double N, GL2 gl) {
         // 2D array to store the line translations
@@ -389,12 +393,13 @@ class RaceTrack {
 
     /**
      * Draw finish line
+     *
      * @param gl
      * @param finish
      * @param point
      * @param off
      * @param point_next
-     * @param off_next 
+     * @param off_next
      */
     private void drawFinish(GL2 gl, Texture finish, Vector point, Vector off, Vector point_next, Vector off_next) {
         //Set material to white
@@ -457,10 +462,11 @@ class RaceTrack {
 
     /**
      * Returns center point on lane
+     *
      * @param lane
      * @param point
      * @param normal
-     * @return 
+     * @return
      */
     private Vector getPointOnLane(int lane, Vector point, Vector normal) {
         Vector point2 = new Vector(0, 0, 0);
@@ -493,9 +499,10 @@ class RaceTrack {
 
     /**
      * Returns the tangent or position on bezier line.
+     *
      * @param t between 0<=t<1
      * @param isTangent if true return tangent
-     * @return 
+     * @return
      */
     public Vector getLaneBezier(double t, boolean isTangent) {
 
