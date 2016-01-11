@@ -1,6 +1,7 @@
 package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
+import com.jogamp.opengl.util.texture.Texture;
 import static javax.media.opengl.GL.GL_FRONT;
 import javax.media.opengl.GL2;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
@@ -22,6 +23,9 @@ class Robot {
     // The material from which this robot is built
     private final Material material;
     private final Material accent;
+    
+    private Texture torso;
+    private Texture face;
 
     // Make global variables to simplify the code
     private GL2 gl;
@@ -53,11 +57,12 @@ class Robot {
     /**
      * Constructs the robot with initial parameters.
      */
-    public Robot(Material material, Material accent
-    /* add other parameters that characterize this robot */) {
+    public Robot(Material material, Material accent, Texture torso, Texture head) {
         this.material = material;
         this.accent = accent;
-        
+        this.torso = torso;
+        this.face = head;
+                
         // Assign static values to bodypart attributes
         for (BodyPart p : parts) {
             p.lenght = this.bodyHeight;
@@ -70,7 +75,8 @@ class Robot {
             p.foreheadRadius = this.foreheadRadius;
             p.antennaBaseRadius = this.antennaBaseRadius;
             p.limbRadius = this.limbRadius;
-            p.armLength = this.armLength;
+            p.armLength = this.armLength; 
+            p.texture = this.torso;
         }
     }
 
@@ -118,5 +124,15 @@ class Robot {
         gl.glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
         gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, material.diffuse, 0);
         gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
+    }
+
+    /**
+     * @param torso the torso to set
+     */
+    public void setTorso(Texture torso, Texture head) {
+        this.torso = torso;
+        this.face = head;
+        this.body.texture = this.torso;
+        this.head.texture = this.face;
     }
 }
