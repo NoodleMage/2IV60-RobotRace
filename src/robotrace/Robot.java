@@ -103,7 +103,7 @@ class Robot {
 
         // Draw the bodyParts
         for (BodyPart p : parts) {
-            if (stickFigure) {
+            if (!stickFigure) {
                p.Draw(); 
             }else{
                 p.DrawStick();
