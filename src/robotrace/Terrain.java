@@ -109,23 +109,17 @@ public class Terrain {
         this.tree_x = new int[AMOUNT_TREES];
         this.tree_y = new int[AMOUNT_TREES];
         this.tree_radius = new double[AMOUNT_TREES];
+        
+        this.calculateTrees();
 
     }
-
-    /**
-     * Draws the terrain.
-     *
-     * @param gl
-     * @param glut
-     * @param sky
-     */
-    public void draw(GL2 gl, GLUT glut, Texture sky) {
+    
+    private final Random random = new Random();
+    
+    public final void calculateTrees(){
         // If the trees have not yet been calculated, calculate the tree value's
         if (!treesCalculated) {
-
-            //Create new random
-            Random random = new Random();
-
+            
             //Loop through amount of trees
             for (int i = 0; i < AMOUNT_TREES; i++) {
 
@@ -160,10 +154,18 @@ public class Terrain {
             treesCalculated = true;
 
         }
+    }
 
+    /**
+     * Draws the terrain.
+     *
+     * @param gl
+     * @param glut
+     * @param sky
+     */
+    public void draw(GL2 gl, GLUT glut, Texture sky) {    
         //Draw trees
         for (int i = 0; i < AMOUNT_TREES; i++) {
-
             drawTree(gl, glut, tree_radius[i], tree_heights[i], tree_x[i], tree_y[i], heightAt(tree_x[i], tree_y[i]));
         }
 
@@ -178,9 +180,7 @@ public class Terrain {
         // execute the draw texture function
         drawTexture(gl);
         // Unbind the terrain texture
-        gl.glBindTexture(GL_TEXTURE_1D, 0);
-        
-        
+        gl.glBindTexture(GL_TEXTURE_1D, 0);       
 
         // Create the water texture
         setMaterial(Material.WATER, gl);

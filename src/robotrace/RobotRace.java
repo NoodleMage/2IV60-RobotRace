@@ -91,16 +91,16 @@ public class RobotRace extends Base {
         robots = new Robot[4];
 
         // Initialize bender 0
-        robots[0] = new Robot(Material.GOLD, Material.GOLD_ACCENT);
+        robots[0] = new Robot(Material.GOLD, Material.GOLD_ACCENT, torso, head);
 
         // Initialize bender 1
-        robots[1] = new Robot(Material.SILVER, Material.SILVER_ACCENT);
+        robots[1] = new Robot(Material.SILVER, Material.SILVER_ACCENT, torso, head);
 
         // Initialize bender 2
-        robots[2] = new Robot(Material.WOOD, Material.WOOD_ACCENT);
+        robots[2] = new Robot(Material.WOOD, Material.WOOD_ACCENT, torso, head);
 
         // Initialize bender 3
-        robots[3] = new Robot(Material.ORANGE, Material.GOLD_ACCENT);
+        robots[3] = new Robot(Material.ORANGE, Material.GOLD_ACCENT, torso, head);
 
         // Initialize the camera
         camera = new Camera();
@@ -195,7 +195,7 @@ public class RobotRace extends Base {
             new Vector(-5, 0, 8),});
 
         // Initialize the terrain
-        terrain = new Terrain();
+        terrain = new Terrain();   
     }
 
     /**
@@ -228,6 +228,11 @@ public class RobotRace extends Base {
         torso = loadTexture("torso.jpg");
         finish = loadTexture("finish.jpg");
         sky = loadTexture("sky.jpg");
+        
+        for (int i = 0; i < robots.length; i++) {
+            robots[i].setTorso(torso, head);
+            
+        }
     }
 
     /**
@@ -275,7 +280,7 @@ public class RobotRace extends Base {
 
         setLighting();
     }
-
+    
     /**
      * Draws the entire scene.
      */
