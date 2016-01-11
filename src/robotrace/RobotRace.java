@@ -41,22 +41,24 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
  * additional textured primitives to the GLUT object.
  */
 public class RobotRace extends Base {
+    
 
-    private final Double step;
-
-    private int luckCount = 0;
-
-    private final Double[] steps = {0.0, 0.0, 0.0, 0.0};
-
-    private final Boolean[] hasLuck = {false, false, false, false};
+    private Double[] steps = {0.0, 0.0, 0.0, 0.0};
 
     private static final int MOTOR_LANE = 6;
 
     private Vector motorPosition;
 
-    private final Double N = 10000d;
-    private static final Double SPEED = 5.0;
+    private double currentTAnim = 0.0;
+    private double prevTAnim = 0.0;
 
+    private Double N = 10000d;
+
+    
+    private final static double MAX_SPEED = 200;
+    private final static double MIN_SPEED = 175;
+    
+    private final double[] speed = {0.0, 0.0, 0.0, 0.0};
     private Texture finish;
     private Texture sky;
     /**
@@ -84,7 +86,6 @@ public class RobotRace extends Base {
      * terrain.
      */
     public RobotRace() {
-        this.step = 0d;
 
         // Create a new array of four robots
         robots = new Robot[4];
@@ -297,38 +298,26 @@ public class RobotRace extends Base {
             drawAxisFrame();
         }
 
-        // create array of speeds variations
-        Double[] speeds = new Double[4];
-//        System.out.println(luckCount);
-        if (luckCount >= 250) {
-            luckCount = 0;
-            for (int i = 0; i < 4; i++) {
-                Random rand = new Random();
-                hasLuck[i] = rand.nextBoolean();
-            }
-        }
+        prevTAnim = currentTAnim;
+        currentTAnim = gs.tAnim;
 
-        for (int i = 0; i < 4; i++) {
-            if (hasLuck[i]) {
-                Random rand = new Random();
-                speeds[i] = SPEED + (rand.nextDouble() * 4);
-            } else {
-                Random rand = new Random();
-                speeds[i] = SPEED + rand.nextDouble();
-            }
-        }
-
+        Random random = new Random();
 //         Get the position and direction of the first robot.
         for (int i = 0; i < 4; i++) {
-            robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, steps[i] / N);
+            robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (steps[i]) / N);
             robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, steps[i] / N);
             // System.out.println(raceTracks[gs.trackNr].getLanePoint(i,steps[i]/N).x);
             // camera.update(gs, robots[i]);
-//           System.out.println("Bot: " + i + " speed: " + steps[i]);
-            steps[i] += speeds[i];
-            luckCount++;
-            if (steps[i] / N >= 1) {
-                steps[i] = 0d;
+            
+            System.out.println(steps[i] / N);
+
+            steps[i] += (currentTAnim - prevTAnim) * speed[i];
+
+            //If you want to calculate the finish 
+            //steps[i[ != 0 check is neede bacause otherwise the inital start also counts as a round
+            if (round(steps[i]/speed[i],1) % round((N/speed[i]),1) == 0) {
+                steps[i] = 0.0;
+                speed[i] = random.nextInt((int) (MAX_SPEED - MIN_SPEED)) + MIN_SPEED;
             }
         }
 
@@ -367,6 +356,7 @@ public class RobotRace extends Base {
         raceTracks[gs.trackNr].draw(gl, glu, glut, track, brick, finish);
 
         // Draw the terrain.
+//        terrain.draw(gl, glu, glut);
         terrain.draw(gl, glut, sky);
     }
 
@@ -475,5 +465,10 @@ public class RobotRace extends Base {
     public static void main(String args[]) {
         RobotRace robotRace = new RobotRace();
         robotRace.run();
+    }
+
+    private static double round(double value, int precision) {
+        int scale = (int) Math.pow(10, precision);
+        return (double) Math.round(value * scale) / scale;
     }
 }
